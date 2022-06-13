@@ -21,7 +21,7 @@
       @click="userToview = user.name"
       class="mr-2 cursor-pointer"
     >
-      {{ user.name }}</span
+      {{ user.name }}+ {{ user.tasks.length }}</span
     >
   </div>
   <div
@@ -51,7 +51,7 @@
                 : 'opacity-80'
             "
           >
-            {{ user.name }} + {{ user.tasks.length }}
+            {{ user.name }}
           </div>
         </div>
       </div>
@@ -116,23 +116,35 @@ const persPerTask = computed(() => {
 });
 function launch() {
   setUser();
-
+  let securit = 0;
   if (checkUsersToTasks()) {
     //Pour chaque jours
+
     for (let day = 0; day <= days.value - 1; day++) {
       console.log(
         "JOURS __________________________________________________",
         day
       );
-      let array: user[] = fisherYatesShuffle(users.value).slice();
+             let array: user[] = fisherYatesShuffle(users.value).slice();
+       
+/*       let array: user[] = users.value;
+ */
       //Pour chaque taches
       tasks.forEach((task) => {
         console.log("      TACHES ", task.name);
 
         let nbUsersTask = 0;
-        let securit = 0;
+
         array.forEach((user) => {
-          if (nbUsersTask < task.nbUser && countSameTask(user, task.name) < 2) {
+          const lastTask = user.tasks.find((t) => t.day == day - 1);
+
+          if (
+            (nbUsersTask < task.nbUser &&
+              lastTask?.name !== task.name &&
+              countSameTask(user, task.name) < 2) ||
+            (nbUsersTask < task.nbUser &&
+              array[array.length - 1].name === user.name)
+          ) {
             const found = user.tasks.find((element) => element.day === day);
             console.log("found", found);
 
@@ -149,7 +161,6 @@ function launch() {
             }
           }
         });
-        console.log("USER", users.value);
       });
     }
   }
