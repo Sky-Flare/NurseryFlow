@@ -1,13 +1,13 @@
 <template>
-  <h1>Task</h1>
-  <div class="cursor-pointer" @click="launch">GO</div>
+  <h1 class="font-bold text-xl mb-4">Welcome</h1>
   <div>
-    <form @submit.prevent="onSubmit" class="add-form">
-      <div class="form-control">
-        <label>Name</label>
-        <input type="text" v-model="name" name="name" placeholder="Enter Your Name" />
+    <form @submit.prevent="onSubmitUsers" class="add-form flex items-center justify-center flex-col">
+      <div class="form-control flex flex-col items-center justify-center w-[80%]">
+        <label class="mb-2">👇👇Nom des personnes à la suite avec un espace ex : Lucas Yannick Jason👇👇</label>
+        <textarea type="text" class="border border-black rounded w-full h-[5rem]" v-model="input" name="name"
+          placeholder="Enter Your Name" />
       </div>
-      <input type="submit" value="Save Information" class="btn btn-block" />
+      <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
     </form>
   </div>
   <div class="flex flex-wrap">
@@ -15,24 +15,27 @@
       :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
       {{ user.name }}+ {{ user.tasks.length }}</span>
   </div>
-  <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
-    Jour {{ day }}
-    <div class="flex justify-between">
-      <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
-        <span class="font-bold">{{ task.name }}</span>
-        <div class="flex flex-col">
-          <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
-            class="cursor-pointer" :class="
-              userToview === user.name
-                ? 'opacity-100	bg-orange-500	'
-                : 'opacity-80'
-            ">
-            {{ user.name }}
+  <template v-if="users.length">
+    <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
+      Jour {{ day }}
+      <div class="flex justify-between">
+        <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
+          <span class="font-bold">{{ task.name }}</span>
+          <div class="flex flex-col">
+            <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
+              class="cursor-pointer" :class="
+                userToview === user.name
+                  ? 'opacity-100	bg-orange-500	'
+                  : 'opacity-80'
+              ">
+              {{ user.name }}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </template>
+
 
   <div class="cursor-pointer" @click="launch">GO</div>
 </template>
@@ -79,16 +82,15 @@ const tasks = [
 const userToview = ref();
 const days = ref(12);
 let users = ref<user[]>([]);
-const name = ref("");
+const input = ref("");
 
-function onSubmit() {
-  console.log(name.value);
-
-  const newUser: user = { name: name.value, tasks: [] };
-
-  users.value.push(newUser);
-
-  name.value = "";
+function onSubmitUsers() {
+  const arrayUsers = input.value.split(' ');
+  arrayUsers.forEach((u) => {
+    const newUser: user = { name: u, tasks: [] };
+    users.value.push(newUser);
+  })
+  input.value = "";
 }
 const persPerTask = computed(() => {
   return Math.round(users.value.length / tasks.length);
