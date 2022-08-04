@@ -1,94 +1,115 @@
 <template>
-  <h1 class="font-bold text-xl mb-8">Welcome</h1>
-  <div class="flex flex-col items-center justify-center">
+  <div class="pb-24">
 
-    <div class="w-[90%] p-4 mb-8">
-      <form @submit.prevent="onSubmitDays" class="add-form flex items-center justify-center flex-col">
-        <div class="form-control flex flex-col items-center justify-center w-[20%] mb-4">
-          <label class="mb-2">Nombre de jours 📆
-          </label>
-          <input type="number" class="border border-black rounded w-full" v-model="inputDays" name="name"
-            placeholder="0" />
-        </div>
-        <div>Actuel : {{ days }}</div>
-        <input type="submit" value="Nombre de jours" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
-      </form>
-    </div>
+    <h1 class="font-bold text-xl mb-8">Welcome</h1>
+    <div class="flex flex-col items-center justify-center ">
 
-    <div class="w-[90%] p-4 mb-8">
-      <form @submit.prevent="onSubmitUsers" class="add-form flex items-center justify-center flex-col">
-        <div class="form-control flex flex-col items-center justify-center w-[80%] mb-4">
-          <label class="mb-2">👇👇Nom des personnes à la suite avec un espace ex : Lucas Yannick Jason👇👇</label>
-          <textarea type="text" class="border border-black rounded w-full h-[5rem]" v-model="inputUsers" name="name"
-            placeholder="Prenom" />
-        </div>
-        <span>Actuel : </span>
-
-        <div class="group text-lg">
-          <span v-for="user in users" @click="deleteUser(user.name)" class="cursor-pointer">{{
-              user.name
-          }}
-            <b></b></span>
-          <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la personne</strong>
-        </div>
-        <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
-      </form>
-    </div>
-
-    <div class="w-[90%] p-4">
-      <form @submit.prevent="onSubmitTasks" class="add-form flex items-center justify-center flex-col">
-        <div class="form-control flex items-center justify-center w-[80%] mb-4">
-          <div>
-            <label for="taskName" class="mb-2">👇👇Nom de la tache👇👇</label>
-            <input type="text" id="taskName" name="taskName" class="border border-black rounded w-full h-[5rem]"
-              v-model="inputTasksName" placeholder="Nom de la tache" />
+      <div class="w-[90%] p-4 mb-8">
+        <form @submit.prevent="onSubmitDays" class="add-form flex items-center justify-center flex-col">
+          <div class="form-control flex flex-col items-center justify-center w-[20%] mb-4">
+            <label class="mb-2">Nombre de jours 📆
+            </label>
+            <input type="number" class="border border-black rounded w-full" v-model="inputDays" name="name"
+              placeholder="0" />
           </div>
-          <div>
-            <label for="taskNbUser" class="flex">Nombre de personnes pour cette tache 0️⃣1️⃣2️⃣3️⃣...</label>
-            <input type="number" id="taskNbUser" name="taskNbUser" min="0" max="100" v-model="inputTasksNbUser"
-              class="border border-black rounded w-12 h-[5rem]" placeholder="0">
+          <div>Actuel : </div>
+          <div v-if="days > 0" class="group text-lg h-[50px] flex flex-col items-center">
+            <div class="flex">
+              <span @click="deleteDays()"
+                class="cursor-pointer transform transition duration-400 hover:font-bold hover:text-red-500 hover:scale-[1.5]">
+                {{ days }}
+              </span>
+            </div>
+            <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer le nombre de jours</strong>
           </div>
-        </div>
-        <span>Actuel : </span>
-        <div class="group text-lg">
-          <span v-for="task in tasks" @click="deleteTask(task.name)" class="cursor-pointer">{{ task.name }}{{
-              task.nbUser
-          }} ➡️ </span>
-          <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la tache</strong>
-        </div>
-        <input type="submit" value="Ajouter une tache" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
-      </form>
-    </div>
-  </div>
+          <input type="submit" value="Nombre de jours" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+        </form>
+      </div>
 
-  <div class="flex flex-wrap">
-    <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
-      :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
-      {{ user.name }}+ {{ user.tasks.length }}</span>
-  </div>
-  <template v-if="users.length">
-    <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
-      Jour {{ day }}
-      <div class="flex justify-between">
-        <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
-          <span class="font-bold">{{ task.name }}</span>
-          <div class="flex flex-col">
-            <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
-              class="cursor-pointer" :class="
-                userToview === user.name
-                  ? 'opacity-100	bg-orange-500	'
-                  : 'opacity-80'
-              ">
-              {{ user.name }}
+      <div class="w-[90%] p-4 mb-8">
+        <form @submit.prevent="onSubmitUsers" class="add-form flex items-center justify-center flex-col">
+          <div class="form-control flex flex-col items-center justify-center w-[80%] mb-4">
+            <label class="mb-2">👇👇Nom des personnes à la suite avec un espace ex : Lucas Yannick Jason👇👇</label>
+            <textarea type="text" class="border border-black rounded w-full h-[5rem]" v-model="inputUsers" name="name"
+              placeholder="Prenom" />
+          </div>
+          <span>Actuel : </span>
+          <div v-if="users.length" class="group text-lg h-[50px] flex flex-col items-center">
+            <div class="flex">
+              <span v-for="user in users" @click="deleteUser(user.name)"
+                class="cursor-pointer mx-2 transform transition duration-400 opacity-60 hover:opacity-100 hover:font-bold hover:text-red-500 hover:scale-[1.3]">
+                <b> </b>
+                😃 {{ user.name }}
+                <b></b>
+              </span>
+            </div>
+            <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la personne</strong>
+          </div>
+          <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+        </form>
+      </div>
+
+      <div class="w-[90%] p-4">
+        <form @submit.prevent="onSubmitTasks" class="add-form flex items-center justify-center flex-col">
+          <div class="form-control flex items-center justify-center w-[80%] mb-4">
+            <div>
+              <label for="taskName" class="mb-2">👇👇Nom de la tache👇👇</label>
+              <input type="text" id="taskName" name="taskName" class="border border-black rounded w-full h-[2rem]"
+                v-model="inputTasksName" placeholder="Nom de la tache" />
+            </div>
+            <div>
+              <label for="taskNbUser" class="flex">Nombre de personnes pour cette tache 0️⃣1️⃣2️⃣3️⃣...</label>
+              <input type="number" id="taskNbUser" name="taskNbUser" min="0" max="100" v-model="inputTasksNbUser"
+                class="border border-black rounded w-12 h-[2rem]" placeholder="0">
+            </div>
+          </div>
+          <span>Actuel : </span>
+          <div v-if="tasks.length > 0" class="group text-lg h-[50px] flex flex-col items-center">
+            <div class="flex">
+              <span v-for="task in tasks" @click="deleteTask(task.name)"
+                class="cursor-pointer mx-2 transform transition duration-400 opacity-60 hover:opacity-100 hover:font-bold hover:text-red-500 hover:scale-[1.3]">
+                {{ task.name }}{{ task.nbUser }} ➡️ <b> </b>
+              </span>
+            </div>
+            <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la tache</strong>
+          </div>
+          <input type="submit" value="Ajouter une tache" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+        </form>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap">
+      <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
+        :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
+        {{ user.name }}+ {{ user.tasks.length }}</span>
+    </div>
+    <template v-if="users.length">
+      <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
+        Jour {{ day }}
+        <div class="flex justify-between">
+          <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
+            <span class="font-bold">{{ task.name }}</span>
+            <div class="flex flex-col">
+              <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
+                class="cursor-pointer" :class="
+                  userToview === user.name
+                    ? 'opacity-100	bg-orange-500	'
+                    : 'opacity-80'
+                ">
+                {{ user.name }}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </template>
+    </template>
 
 
-  <div class="cursor-pointer" @click="launch">GO</div>
+    <div
+      class="cursor-pointer rounded-full h-[100px] w-[100px] m-auto bg-green-500 flex items-center justify-center font-bold text-white text-2xl"
+      @click="launch">GO</div>
+
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -104,6 +125,11 @@ interface task {
   nbUser: number;
 }
 
+onMounted(() => {
+  tasks.value = JSON.parse(localStorage.getItem('tasks') ?? '[]');
+  users.value = JSON.parse(localStorage.getItem('users') ?? '[]');
+  days.value = JSON.parse(localStorage.getItem('days') ?? '0');
+});
 
 const userToview = ref();
 const days = ref(0);
@@ -121,18 +147,20 @@ function onSubmitUsers() {
   const arrayUsers = inputUsers.value.split(' ');
   users.value = [];
   arrayUsers.forEach((u) => {
-    const newUser: user = { name: u, tasks: [] };
-    users.value.push(newUser);
+    if (u.trim() !== '') {
+      const newUser: user = { name: u, tasks: [] };
+      users.value.push(newUser);
+    }
   })
+  localStorage.setItem('users', JSON.stringify(users.value));
+
 }
 function onSubmitTasks() {
-  console.log('onSubmitTasks', inputTasksName.value,);
-
   if (!inputTasksName.value || !inputTasksNbUser.value) {
-    console.log('return');
     return;
   }
-  tasks.value.push({ name: inputTasksName.value, nbUser: inputTasksNbUser.value })
+  tasks.value.push({ name: inputTasksName.value, nbUser: inputTasksNbUser.value });
+  localStorage.setItem('tasks', JSON.stringify(tasks.value));
   inputTasksName.value = "";
   inputTasksNbUser.value = 0;
 }
@@ -140,7 +168,9 @@ function onSubmitDays() {
   if (!inputDays.value) {
     return;
   }
+
   days.value = inputDays.value;
+  localStorage.setItem('days', JSON.stringify(days.value));
 }
 const persPerTask = computed(() => {
   return Math.round(users.value.length / tasks.value.length);
@@ -151,11 +181,11 @@ function launch() {
     //Pour chaque jours
     for (let day = 0; day <= days.value - 1; day++) {
       // let array: user[] = users.value;
-      let array: user[] = fisherYatesShuffle(users.value);
+
 
       //Pour chaque taches 
       tasks.value.forEach((task) => {
-
+        let array: user[] = fisherYatesShuffle(users.value);
         let nbUsersTask = 0;
 
         array.forEach((user) => {
@@ -225,9 +255,23 @@ function countSameTask(user: user, taskSearch: string) {
 
 function deleteUser(name: string) {
   users.value.splice(users.value.findIndex((u) => u.name === name), 1)
+  if (users.value.length > 0) {
+    localStorage.setItem('users', JSON.stringify(users.value));
+  } else {
+    localStorage.removeItem('users');
+  }
 }
 function deleteTask(name: string) {
   tasks.value.splice(tasks.value.findIndex((t) => t.name === name), 1)
+  if (tasks.value.length > 0) {
+    localStorage.setItem('tasks', JSON.stringify(tasks.value));
+  } else {
+    localStorage.removeItem('tasks');
+  }
+}
+function deleteDays() {
+  days.value = 0;
+  localStorage.removeItem('days');
 }
 /* const x = (task.nbUser * 100) / users.value.length;
 console.log("x", task.name, Math.ceil((days.value / 100) * x)); */
