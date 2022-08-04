@@ -12,11 +12,11 @@
   </div>
   <div class="flex flex-wrap">
     <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
-      :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-400'">
+      :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
       {{ user.name }}+ {{ user.tasks.length }}</span>
   </div>
   <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
-    {{ day }}
+    Jour {{ day }}
     <div class="flex justify-between">
       <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
         <span class="font-bold">{{ task.name }}</span>
@@ -49,11 +49,15 @@ interface user {
 const tasks = [
   {
     name: "sandwichs",
-    nbUser: 4,
+    nbUser: 3,
+  },
+  {
+    name: "poubelles",
+    nbUser: 3,
   },
   {
     name: "petit dej",
-    nbUser: 4,
+    nbUser: 3,
   },
   {
     name: "vaisselle pti dej",
@@ -69,11 +73,11 @@ const tasks = [
   },
   {
     name: "vaisselle soir",
-    nbUser: 5,
+    nbUser: 4,
   },
 ];
 const userToview = ref();
-const days = ref(6);
+const days = ref(12);
 let users = ref<user[]>([]);
 const name = ref("");
 
@@ -94,8 +98,8 @@ function launch() {
   setUser();
   if (checkUsersToTasks()) {
     //Pour chaque jours
-
     for (let day = 0; day <= days.value - 1; day++) {
+      // let array: user[] = users.value;
       let array: user[] = fisherYatesShuffle(users.value);
 
       //Pour chaque taches 
@@ -109,8 +113,7 @@ function launch() {
             (nbUsersTask < task.nbUser &&
               lastTask?.name !== task.name &&
               countSameTask(user, task.name) < Math.ceil(((tasks.length * days.value) / users.value.length))) ||
-            (nbUsersTask < task.nbUser &&
-              array[array.length - 1].name === user.name)
+            (nbUsersTask < task.nbUser)
           ) {
             const foundTask = user.tasks.find((element) => element.day === day);
             // console.log("found", foundTask); 
