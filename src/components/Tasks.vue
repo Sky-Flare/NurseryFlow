@@ -1,15 +1,66 @@
 <template>
-  <h1 class="font-bold text-xl mb-4">Welcome</h1>
-  <div>
-    <form @submit.prevent="onSubmitUsers" class="add-form flex items-center justify-center flex-col">
-      <div class="form-control flex flex-col items-center justify-center w-[80%]">
-        <label class="mb-2">👇👇Nom des personnes à la suite avec un espace ex : Lucas Yannick Jason👇👇</label>
-        <textarea type="text" class="border border-black rounded w-full h-[5rem]" v-model="input" name="name"
-          placeholder="Enter Your Name" />
-      </div>
-      <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
-    </form>
+  <h1 class="font-bold text-xl mb-8">Welcome</h1>
+  <div class="flex flex-col items-center justify-center">
+
+    <div class="w-[90%] p-4 mb-8">
+      <form @submit.prevent="onSubmitDays" class="add-form flex items-center justify-center flex-col">
+        <div class="form-control flex flex-col items-center justify-center w-[20%] mb-4">
+          <label class="mb-2">Nombre de jours 📆
+          </label>
+          <input type="number" class="border border-black rounded w-full" v-model="inputDays" name="name"
+            placeholder="0" />
+        </div>
+        <div>Actuel : {{ days }}</div>
+        <input type="submit" value="Nombre de jours" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+      </form>
+    </div>
+
+    <div class="w-[90%] p-4 mb-8">
+      <form @submit.prevent="onSubmitUsers" class="add-form flex items-center justify-center flex-col">
+        <div class="form-control flex flex-col items-center justify-center w-[80%] mb-4">
+          <label class="mb-2">👇👇Nom des personnes à la suite avec un espace ex : Lucas Yannick Jason👇👇</label>
+          <textarea type="text" class="border border-black rounded w-full h-[5rem]" v-model="inputUsers" name="name"
+            placeholder="Prenom" />
+        </div>
+        <span>Actuel : </span>
+
+        <div class="group text-lg">
+          <span v-for="user in users" @click="deleteUser(user.name)" class="cursor-pointer">{{
+              user.name
+          }}
+            <b></b></span>
+          <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la personne</strong>
+        </div>
+        <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+      </form>
+    </div>
+
+    <div class="w-[90%] p-4">
+      <form @submit.prevent="onSubmitTasks" class="add-form flex items-center justify-center flex-col">
+        <div class="form-control flex items-center justify-center w-[80%] mb-4">
+          <div>
+            <label for="taskName" class="mb-2">👇👇Nom de la tache👇👇</label>
+            <input type="text" id="taskName" name="taskName" class="border border-black rounded w-full h-[5rem]"
+              v-model="inputTasksName" placeholder="Nom de la tache" />
+          </div>
+          <div>
+            <label for="taskNbUser" class="flex">Nombre de personnes pour cette tache 0️⃣1️⃣2️⃣3️⃣...</label>
+            <input type="number" id="taskNbUser" name="taskNbUser" min="0" max="100" v-model="inputTasksNbUser"
+              class="border border-black rounded w-12 h-[5rem]" placeholder="0">
+          </div>
+        </div>
+        <span>Actuel : </span>
+        <div class="group text-lg">
+          <span v-for="task in tasks" @click="deleteTask(task.name)" class="cursor-pointer">{{ task.name }}{{
+              task.nbUser
+          }} ➡️ </span>
+          <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la tache</strong>
+        </div>
+        <input type="submit" value="Ajouter une tache" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+      </form>
+    </div>
   </div>
+
   <div class="flex flex-wrap">
     <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
       :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
@@ -48,56 +99,54 @@ interface user {
   name: string;
   tasks: { day: number; name: string }[];
 }
+interface task {
+  name: string;
+  nbUser: number;
+}
 
-const tasks = [
-  {
-    name: "sandwichs",
-    nbUser: 3,
-  },
-  {
-    name: "poubelles",
-    nbUser: 3,
-  },
-  {
-    name: "petit dej",
-    nbUser: 3,
-  },
-  {
-    name: "vaisselle pti dej",
-    nbUser: 4,
-  },
-  {
-    name: "table",
-    nbUser: 4,
-  },
-  {
-    name: "repas",
-    nbUser: 4,
-  },
-  {
-    name: "vaisselle soir",
-    nbUser: 4,
-  },
-];
+
 const userToview = ref();
-const days = ref(12);
-let users = ref<user[]>([]);
-const input = ref("");
+const days = ref(0);
+const users = ref<user[]>([]);
+const tasks = ref<task[]>([]);
+const inputUsers = ref("");
+const inputTasksName = ref("");
+const inputTasksNbUser = ref(0);
+const inputDays = ref(0);
 
 function onSubmitUsers() {
-  const arrayUsers = input.value.split(' ');
+  if (!inputUsers.value) {
+    return;
+  }
+  const arrayUsers = inputUsers.value.split(' ');
+  users.value = [];
   arrayUsers.forEach((u) => {
     const newUser: user = { name: u, tasks: [] };
     users.value.push(newUser);
   })
-  input.value = "";
+}
+function onSubmitTasks() {
+  console.log('onSubmitTasks', inputTasksName.value,);
+
+  if (!inputTasksName.value || !inputTasksNbUser.value) {
+    console.log('return');
+    return;
+  }
+  tasks.value.push({ name: inputTasksName.value, nbUser: inputTasksNbUser.value })
+  inputTasksName.value = "";
+  inputTasksNbUser.value = 0;
+}
+function onSubmitDays() {
+  if (!inputDays.value) {
+    return;
+  }
+  days.value = inputDays.value;
 }
 const persPerTask = computed(() => {
-  return Math.round(users.value.length / tasks.length);
+  return Math.round(users.value.length / tasks.value.length);
 });
 function launch() {
 
-  setUser();
   if (checkUsersToTasks()) {
     //Pour chaque jours
     for (let day = 0; day <= days.value - 1; day++) {
@@ -105,7 +154,7 @@ function launch() {
       let array: user[] = fisherYatesShuffle(users.value);
 
       //Pour chaque taches 
-      tasks.forEach((task) => {
+      tasks.value.forEach((task) => {
 
         let nbUsersTask = 0;
 
@@ -114,7 +163,7 @@ function launch() {
           if (
             (nbUsersTask < task.nbUser &&
               lastTask?.name !== task.name &&
-              countSameTask(user, task.name) < Math.ceil(((tasks.length * days.value) / users.value.length))) ||
+              countSameTask(user, task.name) < Math.ceil(((tasks.value.length * days.value) / users.value.length))) ||
             (nbUsersTask < task.nbUser)
           ) {
             const foundTask = user.tasks.find((element) => element.day === day);
@@ -140,7 +189,7 @@ function launch() {
 
 function checkUsersToTasks() {
   let nbUserTotal = 0;
-  tasks.forEach((task) => {
+  tasks.value.forEach((task) => {
     nbUserTotal = nbUserTotal + task.nbUser;
   });
   if (nbUserTotal !== users.value.length) {
@@ -172,6 +221,13 @@ function countSameTask(user: user, taskSearch: string) {
     }
   });
   return i;
+}
+
+function deleteUser(name: string) {
+  users.value.splice(users.value.findIndex((u) => u.name === name), 1)
+}
+function deleteTask(name: string) {
+  tasks.value.splice(tasks.value.findIndex((t) => t.name === name), 1)
 }
 /* const x = (task.nbUser * 100) / users.value.length;
 console.log("x", task.name, Math.ceil((days.value / 100) * x)); */
@@ -271,6 +327,36 @@ function setUser() {
   users.value.push({ name: "lilis", tasks: [] });
   users.value.push({ name: "maxs", tasks: [] }); */
 }
+// const tasks: task = [
+// {
+//   name: "sandwichs",
+//   nbUser: 3,
+// },
+// {
+//   name: "poubelles",
+//   nbUser: 3,
+// },
+// {
+//   name: "petit dej",
+//   nbUser: 3,
+// },
+// {
+//   name: "vaisselle pti dej",
+//   nbUser: 4,
+// },
+// {
+//   name: "table",
+//   nbUser: 4,
+// },
+// {
+//   name: "repas",
+//   nbUser: 4,
+// },
+// {
+//   name: "vaisselle soir",
+//   nbUser: 4,
+// },
+// ];
 /* while (nbUsersTask < task.nbUser && securit < 50) {
           console.log("while", array);
           securit++;
