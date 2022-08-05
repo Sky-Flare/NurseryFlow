@@ -34,8 +34,8 @@
               placeholder="Prenom" />
           </div>
           <span>Actuel : </span>
-          <div v-if="users.length" class="group text-lg h-[50px] flex flex-col items-center">
-            <div class="flex">
+          <div v-if="users.length" class="group text-lg h-auto flex flex-col items-center">
+            <div class="flex flex-wrap">
               <span v-for="user in users" @click="deleteUser(user.name)"
                 class="cursor-pointer mx-2 transform transition duration-400 opacity-60 hover:opacity-100 hover:font-bold hover:text-red-500 hover:scale-[1.3]">
                 <b> </b>
@@ -64,8 +64,8 @@
             </div>
           </div>
           <span>Actuel : </span>
-          <div v-if="tasks.length > 0" class="group text-lg h-[50px] flex flex-col items-center">
-            <div class="flex">
+          <div v-if="tasks.length > 0" class="group text-lg h-auto flex flex-col items-center">
+            <div class="flex flex-wrap">
               <span v-for="task in tasks" @click="deleteTask(task.name)"
                 class="cursor-pointer mx-2 transform transition duration-400 opacity-60 hover:opacity-100 hover:font-bold hover:text-red-500 hover:scale-[1.3]">
                 {{ task.name }}{{ task.nbUser }} ➡️ <b> </b>
