@@ -22,7 +22,8 @@
             </div>
             <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer le nombre de jours</strong>
           </div>
-          <input type="submit" value="Nombre de jours" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+          <input type="submit" value="Valider le nombre jours"
+            class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
         </form>
       </div>
 
@@ -45,7 +46,13 @@
             </div>
             <strong class='group-hover:text-red-500 group-hover:block hidden'>⚠️ Supprimer la personne</strong>
           </div>
-          <input type="submit" value="Ajouter des personnes" class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer" />
+          <div class="flex">
+            <input type="submit" value="Ajouter des personnes"
+              class="p-2 bg-green-500 rounded-2xl mt-2 cursor-pointer mx-2" />
+            <div v-if="users.length" @click="updateUsers"
+              class="p-2 bg-orange-500 rounded-2xl mt-2 cursor-pointer mx-2">Modifier</div>
+          </div>
+
         </form>
       </div>
 
@@ -78,36 +85,39 @@
       </div>
     </div>
 
-    <div class="flex flex-wrap">
-      <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
-        :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
-        {{ user.name }}+ {{ user.tasks.length }}</span>
-    </div>
-    <template v-if="users.length">
-      <div class="flex flex-col border-2 mb-2" v-for="day in days" :key="day" :day="day">
-        Jour {{ day }}
-        <div class="flex justify-between">
-          <div class="flex flex-col" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
-            <span class="font-bold">{{ task.name }}</span>
-            <div class="flex flex-col">
-              <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
-                class="cursor-pointer" :class="
-                  userToview === user.name
-                    ? 'opacity-100	bg-orange-500	'
-                    : 'opacity-80'
-                ">
-                {{ user.name }}
+
+    <div
+      class="cursor-pointer rounded-full h-[100px] w-[100px] m-auto mt-4 mb-8 bg-green-500 flex items-center justify-center font-bold text-white text-2xl"
+      @click="launch">GO</div>
+    <template v-if="users.length && isReady">
+      <div class="p-4" ref="arrayEl">
+        <div class=" flex items-center justify-center flex-wrap  mt-16 p-4">
+          <span v-for="user in users" :key="user.name" @click="userToview = user.name" class="mr-2 cursor-pointer"
+            :class="user.tasks.length !== days ? 'text-red-400' : 'text-green-600'">
+            {{ user.name }}+ {{ user.tasks.length }}</span>
+        </div>
+        <div class="pb-6 font-bold">Clique sur un prenom pour le metttre en subrillance</div>
+        <div class="flex flex-col mb-2" v-for="day in days" :key="day" :day="day">
+          Jour {{ day }}
+          <div class="flex justify-center p-2">
+            <div class="flex flex-col px-4 pb-4" v-for="(task, idxTask) in tasks" :key="idxTask" :task="task">
+              <span class="font-bold">{{ task.name }}</span>
+              <div class="flex flex-col">
+                <div v-for="(user, idxUser) in getUsers(day, task)" :key="idxUser" @click="userToview = user.name"
+                  class="cursor-pointer" :class="
+                    userToview === user.name
+                      ? 'opacity-100	bg-orange-500	'
+                      : 'opacity-80'
+                  ">
+                  {{ user.name }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
     </template>
-
-
-    <div
-      class="cursor-pointer rounded-full h-[100px] w-[100px] m-auto bg-green-500 flex items-center justify-center font-bold text-white text-2xl"
-      @click="launch">GO</div>
 
   </div>
 </template>
@@ -139,6 +149,8 @@ const inputUsers = ref("");
 const inputTasksName = ref("");
 const inputTasksNbUser = ref(0);
 const inputDays = ref(0);
+const arrayEl = ref<HTMLDivElement | null>(null);
+const isReady = ref(false);
 
 function onSubmitUsers() {
   if (!inputUsers.value) {
@@ -176,6 +188,9 @@ const persPerTask = computed(() => {
   return Math.round(users.value.length / tasks.value.length);
 });
 function launch() {
+  users.value.forEach((u) => {
+    u.tasks = [];
+  });
 
   if (checkUsersToTasks()) {
     //Pour chaque jours
@@ -215,6 +230,13 @@ function launch() {
       });
     }
   }
+  setTimeout(() => {
+    if (arrayEl.value) {
+      arrayEl.value.scrollIntoView({ behavior: 'smooth' });
+    }
+    console.log(arrayEl.value);
+  }, 100);
+  isReady.value = true;
 }
 
 function checkUsersToTasks() {
@@ -273,6 +295,11 @@ function deleteDays() {
   days.value = 0;
   localStorage.removeItem('days');
 }
+function updateUsers() {
+  users.value.forEach((u) => {
+    inputUsers.value += ` ${u.name}`
+  })
+};
 /* const x = (task.nbUser * 100) / users.value.length;
 console.log("x", task.name, Math.ceil((days.value / 100) * x)); */
 /* countSamecalTask(user, task.name) <=
