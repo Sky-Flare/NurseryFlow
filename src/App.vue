@@ -30,7 +30,7 @@ observer.value = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.intersectionRatio > 0.5) {
-        currentId.value = Number(entry.target.dataset.id);
+        currentId.value = Number((entry.target as any).dataset.id);
         console.log(currentId.value);
       }
     });
