@@ -1,77 +1,31 @@
 <template>
-  <div ref="container">
-    <template v-for="index in 200" :key="index">
-      <div
-        v-if="index > currentId - 5 && index < currentId + 5"
-        :ref="(el) => (elements[index] = el)"
-        :data-id="index"
-      >
-        <Tasks :index="index" :key="index" />
-      </div>
-    </template>
+  <div class="container mx-auto p-4">
+    <Toaster />
+
+    <h1 class="text-2xl font-bold mb-4">Gestion de Planning de Crèche</h1>
+
+    <section class="mb-8">
+      <EmployeeList />
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-2">Nombre d'enfants par heure</h2>
+      <ChildrenInputForm />
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold mb-2">Planning</h2>
+      <ScheduleDisplay />
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  ComponentPublicInstance,
-  onMounted,
-  ref,
-  watch,
-} from "@vue/runtime-dom";
-import Tasks from "./components/Tasks.vue";
-
-const elements = ref<Element[] | ComponentPublicInstance[] | null[]>([]);
-const container = ref<Element>();
-const observer = ref<IntersectionObserver>();
-const currentId = ref(1);
-
-observer.value = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.intersectionRatio > 0.5) {
-        currentId.value = Number((entry.target as any).dataset.id);
-        console.log(currentId.value);
-      }
-    });
-  },
-  { threshold: [0.5] }
-);
-watch(
-  () => currentId.value,
-  () => {
-    console.log(currentId.value);
-    observer.value?.unobserve;
-    if (elements.value.length) {
-      elements.value.forEach((el) => {
-        const value = el as Element;
-        if (value) {
-          observer.value?.observe(value);
-        }
-      });
-    }
-  }
-);
-
-onMounted(() => {
-  if (elements.value.length) {
-    elements.value.forEach((el) => {
-      const value = el as Element;
-      if (value) {
-        observer.value?.observe(value);
-      }
-    });
-  }
-});
+import { defineComponent } from "vue";
+import EmployeeList from "./components/EmployeeList.vue";
+import ChildrenInputForm from "./components/ChildrenInputForm.vue";
+import ScheduleDisplay from "./components/ScheduleDisplay.vue";
+import Toaster from "@/components/ui/toast/Toaster.vue";
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style scoped></style>
