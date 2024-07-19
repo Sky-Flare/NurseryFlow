@@ -1,6 +1,11 @@
 <template>
   <div class="flex items-center gap-4 mb-2">
-    <h2 class="text-xl font-semibold">Liste des employés</h2>
+    <h2
+      @click="openEditForm = true"
+      class="cursor-pointer text-xl font-semibold"
+    >
+      Liste des employés
+    </h2>
     <Button
       @click="openEditForm = true"
       class="rounded-full w-[20px] h-[20px] flex items-center justify-center p-0"
@@ -11,7 +16,7 @@
 
   <div class="flex gap-2 flex-wrap">
     <Card
-      :class="cn('w-[190px] h-[190px]', $attrs.class ?? '')"
+      :class="cn('w-1/6 h-[190px] cursor-pointer', $attrs.class ?? '')"
       v-for="employee in employees"
       :key="employee.name"
       @click="

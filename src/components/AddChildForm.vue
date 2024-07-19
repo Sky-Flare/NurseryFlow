@@ -184,7 +184,7 @@ const totalHoursPerWeek = computed(() => {
               <FormItem>
                 <FormLabel class="pr-2">Début</FormLabel>
                 <FormControl>
-                  <select v-bind="field">
+                  <select v-bind="field" class="bg-background text-foreground">
                     <option
                       v-for="time in timeOptions"
                       :key="time"
@@ -200,7 +200,7 @@ const totalHoursPerWeek = computed(() => {
               <FormItem>
                 <FormLabel class="pr-2">Fin</FormLabel>
                 <FormControl>
-                  <select v-bind="field">
+                  <select v-bind="field" class="bg-background text-foreground">
                     <option
                       v-for="time in timeOptions"
                       :key="time"

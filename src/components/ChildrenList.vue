@@ -11,6 +11,7 @@
 
   <div class="flex gap-2 flex-wrap">
     <Card
+      class="cursor-pointer"
       v-for="child in children"
       :key="child.name"
       @click="
