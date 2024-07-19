@@ -9,8 +9,7 @@
     </section>
 
     <section class="mb-8">
-      <h2 class="text-xl font-semibold mb-2">Nombre d'enfants par heure</h2>
-      <ChildrenInputForm />
+      <Childrenlist />
     </section>
 
     <section>
@@ -25,6 +24,7 @@ import { defineComponent } from "vue";
 import EmployeeList from "./components/EmployeeList.vue";
 import ChildrenInputForm from "./components/ChildrenInputForm.vue";
 import ScheduleDisplay from "./components/ScheduleDisplay.vue";
+import Childrenlist from "./components/ChildrenList.vue";
 import Toaster from "@/components/ui/toast/Toaster.vue";
 </script>
 

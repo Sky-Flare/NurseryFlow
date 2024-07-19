@@ -2,11 +2,32 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 export interface Employee {
+  id: number;
   name: string;
   hoursPerWeek: number;
   daysOff: string[];
 }
+export type Days =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
 
+export type HoursArray = { start: string; end: string };
+
+export interface Child {
+  name: string;
+  hours: Record<Days, HoursArray>;
+}
+const test: CHild = {
+  name: "sebastien",
+  hours: {
+    Monday: [],
+  },
+};
 interface State {
   employees: Employee[];
   childrenPerHour: number[][];
@@ -22,23 +43,28 @@ export const useStore = defineStore("main", () => {
       name: "marine",
       hoursPerWeek: 28,
       daysOff: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
+      id: 1721388146335,
     },
     {
       name: "fanny",
       hoursPerWeek: 35,
       daysOff: [],
+      id: 1,
     },
     {
       name: "roxanne",
       hoursPerWeek: 35,
       daysOff: [],
+      id: 2,
     },
     {
       name: "anne",
       hoursPerWeek: 35,
       daysOff: [],
+      id: 3,
     },
   ]);
+
   const childrenPerHour = ref<number[][]>([
     [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
     [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
@@ -48,9 +74,9 @@ export const useStore = defineStore("main", () => {
   ]);
   const schedule = ref<(Employee | null)[][][]>([]);
 
-  function addEmployee(employee: Employee) {
+  function addEmployee(employee: Omit<Employee, "id">) {
     console.log(employees.value);
-
+    employee.id = new Date().getTime();
     employees.value.push(employee);
   }
 
@@ -59,7 +85,7 @@ export const useStore = defineStore("main", () => {
   }
 
   function updateEmployee(e: Employee) {
-    const index = employees.value.findIndex((emp) => emp.name === e.name);
+    const index = employees.value.findIndex((emp) => emp.id === e.id);
     employees.value[index] = e;
   }
 

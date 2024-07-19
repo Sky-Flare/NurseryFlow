@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-4 mb-2">
-    <h2 class="text-xl font-semibold">Liste des employés</h2>
+    <h2 class="text-xl font-semibold">Liste des enfants</h2>
     <Button
       @click="openEditForm = true"
       class="rounded-full w-[20px] h-[20px] flex items-center justify-center p-0"
@@ -11,35 +11,36 @@
 
   <div class="flex gap-2 flex-wrap">
     <Card
-      :class="cn('w-[190px] h-[190px]', $attrs.class ?? '')"
-      v-for="employee in employees"
-      :key="employee.name"
+      v-for="child in children"
+      :key="child.name"
       @click="
-        employeeToEdit = employee;
+        childToEdit = child;
         openEditForm = true;
       "
     >
       <CardHeader>
-        <CardTitle class="capitalize">{{ employee.name }}</CardTitle>
+        <CardTitle class="capitalize">{{ child.name }}</CardTitle>
       </CardHeader>
       <CardContent>
-        <span class="block">{{ employee.hoursPerWeek }} h/semaine</span>
-        <span v-if="employee.daysOff.length"
-          >Days off : {{ employee.daysOff.join(", ") }}</span
-        >
+        <div v-for="(item, key) in child.hours" class="block">
+          {{ key }} : {{ item.start }} - {{ item.end }}
+        </div>
       </CardContent>
+      <CardFooter>
+        <CardDescription> Total : {{ child.total }} </CardDescription>
+      </CardFooter>
     </Card>
-    <add-employee-form
-      :key="employeeToEdit?.id ?? openEditForm.toString()"
-      v-model:open="openEditForm"
-      :edit="employeeToEdit"
-    />
   </div>
+  <AddChildForm
+    :key="childToEdit?.id ?? new Date().getTime()"
+    v-model:open="openEditForm"
+    :child="childToEdit"
+  />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { Employee, useStore } from "../store/index";
+import { Child, Employee, useStore } from "../store/childStore";
 import {
   Card,
   CardContent,
@@ -49,22 +50,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/components/lib/utils";
-import AddEmployeeForm from "@/components/AddEmployeeForm.vue";
+import AddChildForm from "@/components/AddChildForm.vue";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const store = useStore();
-const employees = computed(() => store.employees);
+const children = computed(() => store.children);
 const openEditForm = ref(false);
-const employeeToEdit = ref<Employee>();
+const childToEdit = ref<Child>();
 watch(openEditForm, (v) => {
   if (!v) {
-    employeeToEdit.value = undefined;
+    childToEdit.value = undefined;
   }
 });
-const removeEmployee = (name: string) => {
-  store.removeEmployee(name);
-};
 </script>
 
 <style scoped>

@@ -53,26 +53,23 @@ const { handleSubmit } = useForm({
 });
 
 const onSubmit = handleSubmit((values) => {
+  const employee: Omit<Employee, "id"> = {
+    name: values.username,
+    hoursPerWeek: values.hours,
+    daysOff: values.days,
+  };
   if (props.edit) {
     toast({
       title: "Employé modifié",
       description: `${values.username}, fait ${values.hours} heures, et ne travail pas les ${values.days}`,
     });
-    store.updateEmployee({
-      name: values.username,
-      hoursPerWeek: values.hours,
-      daysOff: values.days,
-    });
+    store.updateEmployee({ ...employee, id: props.edit.id });
   } else {
     toast({
       title: "Employé ajouté",
       description: `${values.username}, fait ${values.hours} heures, et ne travail pas les ${values.days}`,
     });
-    store.addEmployee({
-      name: values.username,
-      hoursPerWeek: values.hours,
-      daysOff: values.days,
-    });
+    store.addEmployee(employee);
   }
   open.value = false;
 });
