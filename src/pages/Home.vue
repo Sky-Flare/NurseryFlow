@@ -15,26 +15,62 @@ const list = ref([
   { id: 5, active: false, day: "tuesday" },
   { id: 6, active: false, day: "tuesday" },
 ]);
+const interval = ref();
+function onLeave(evt) {
+  clearInterval(interval.value);
+  const itemID = evt.dataTransfer.getData("itemID");
+  const start = evt.dataTransfer.getData("start");
+  const end = evt.dataTransfer.getData("end");
+  const day = evt.dataTransfer.getData("day");
+  const isStart = evt.dataTransfer.getData("isStart");
+  interval.value = setTimeout(() => {
+    const currentItem = schedule.value[day]?.employee?.find(
+      (el) => el.name === itemID
+    );
+    console.log(currentItem);
+    if (isStart === "true") {
+      currentItem.start = new Date(start);
+    } else {
+      currentItem.end = new Date(end);
+    }
+    console.log("onleav", evt, itemID, start, end, day);
+  }, 300);
+}
 
-function startDrag(evt, item: (typeof list.value)[0], day: string) {
-  console.log(evt, item);
+function startDrag(
+  evt,
+  item: (typeof schedule.value.monday.employee)[0],
+  day: string,
+  isStart: boolean
+) {
+  console.log("startDrag", evt, item);
   evt.dataTransfer.dropEffect = "move";
   evt.dataTransfer.effectAllowed = "move";
-  evt.dataTransfer.setData("itemID", item.id);
+  evt.dataTransfer.setData("itemID", item.name);
+  evt.dataTransfer.setData("start", item.start);
+  evt.dataTransfer.setData("end", item.end);
   evt.dataTransfer.setData("day", day);
-  evt.dataTransfer.setData("activeStatus", item.active);
+  evt.dataTransfer.setData("isStart", isStart);
 }
-function onDrop(evt, l) {
-  console.log("onDrop", evt, list);
+function onDrop(evt, currentTime: Date) {
+  clearInterval(interval.value);
 
   const itemID = evt.dataTransfer.getData("itemID");
-  const status = evt.dataTransfer.getData("activeStatus");
-  console.log(itemID, status);
-  const currentItem = list.value.find((el) => el.id === parseInt(itemID));
-  console.log(currentItem);
+  const start = evt.dataTransfer.getData("start");
+  const end = evt.dataTransfer.getData("end");
+  const day = evt.dataTransfer.getData("day");
+  const isStart = evt.dataTransfer.getData("isStart");
 
-  currentItem.day = "tuesday";
+  const currentItem = schedule.value[day]?.employee?.find(
+    (el) => el.name === itemID
+  );
+  if (isStart === "true") {
+    currentItem.start = new Date(currentTime);
+  } else {
+    currentItem.end = new Date(currentTime);
+  }
 }
+
 const Monday = computed(() => {
   return list.value.filter((l) => l.day === "monday");
 });
@@ -46,12 +82,12 @@ const schedule = ref({
     date: new Date(`August 15, 2024 7:30:00`),
     employee: [
       {
-        employee: "marine",
+        name: "marine",
         start: new Date("August 15, 2024 07:30:00"),
         end: new Date("August 15, 2024 16:30:00"),
       },
       {
-        employee: "fanny",
+        name: "fanny",
         start: new Date("August 15, 2024 10:00:00"),
         end: new Date("August 15, 2024 15:30:00"),
       },
@@ -83,12 +119,12 @@ const schedule = ref({
     date: new Date(`August 16, 2024 7:30:00`),
     employee: [
       {
-        employee: "marine",
+        name: "marine",
         start: new Date("August 16, 2024 07:30:00"),
         end: new Date("August 16, 2024 12:00:00"),
       },
       {
-        employee: "fanny",
+        name: "fanny",
         start: new Date("August 16, 2024 12:00:00"),
         end: new Date("August 16, 2024 17:30:00"),
       },
@@ -137,10 +173,6 @@ function isDateBetween(
   date: Date,
   employee: { employee: string; start: Date; end: Date }
 ) {
-  console.log("date", date);
-  console.log("employee.start", employee.start);
-  console.log("date === employee.start", date === employee.start);
-
   return {
     start: date.getTime() === employee.start.getTime(),
     end: date.getTime() === employee.end.getTime(),
@@ -157,7 +189,12 @@ function isDateBetween(
           v-for="(currentTime, indexTime) in getMondayDate(currentDay.date)"
           class="w-[12%] flex flex-col gap-2 relative pt-2"
           :data-date="currentTime"
+          @drop="onDrop($event, currentTime)"
+          @dragover.prevent="onDrop($event, currentTime)"
+          @dragenter.prevent
+          @dragleave.prevent="onLeave($event)"
         >
+          <!-- Childs -->
           <div
             v-for="timeChild in currentDay.childs"
             class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
@@ -178,6 +215,8 @@ function isDateBetween(
               👶 {{ timeChild.number }}
             </div>
           </div>
+
+          <!-- Time Bar -->
           <div
             class="absolute top-[-35px] text-xs -rotate-45"
             :class="indexTime % 2 === 1 ? 'text-xs' : 'text-[8px]'"
@@ -188,9 +227,23 @@ function isDateBetween(
             class="absolute h-[calc(100%+15px)] top-[-15px] border"
             :class="indexTime % 2 === 1 ? 'border-black/30' : 'border-black/10'"
           ></div>
+
+          <!-- Time -->
           <div
             v-for="timeEmployee in currentDay.employee"
             class="w-full h-[24px] relative overflow-visible"
+            @dragstart="
+              startDrag(
+                $event,
+                timeEmployee,
+                key,
+                isDateBetween(currentTime, timeEmployee).start
+              )
+            "
+            :draggable="
+              isDateBetween(currentTime, timeEmployee).end ||
+              isDateBetween(currentTime, timeEmployee).start
+            "
             :class="[
               { 'bg-red-400': isDateBetween(currentTime, timeEmployee).active },
               {
@@ -200,13 +253,18 @@ function isDateBetween(
               {
                 'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee).end,
               },
+              {
+                'hover:bg-red-500 cursor-pointer':
+                  isDateBetween(currentTime, timeEmployee).end ||
+                  isDateBetween(currentTime, timeEmployee).start,
+              },
             ]"
           >
             <div
               class="capitalize pl-2 absolute left-0 z-[1] text-white"
               v-if="isDateBetween(currentTime, timeEmployee).start"
             >
-              {{ timeEmployee.employee }}
+              {{ timeEmployee.name }}
             </div>
           </div>
         </div>
@@ -294,7 +352,7 @@ function isDateBetween(
     </div>
   </div> -->
 
-  <!--   <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2">
     <div
       class="flex gap-1"
       @drop="onDrop($event, 1)"
@@ -338,5 +396,5 @@ function isDateBetween(
         {{ item.id }}
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
