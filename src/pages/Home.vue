@@ -1,4 +1,342 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, computed } from "vue";
+const list = ref([
+  {
+    id: 1,
+    active: false,
+    day: "monday",
+    name: "marine",
+    start: "7:30",
+    end: "18:30",
+  },
+  { id: 2, active: true, day: "monday" },
+  { id: 3, active: false, day: "monday" },
+  { id: 4, active: false, day: "tuesday" },
+  { id: 5, active: false, day: "tuesday" },
+  { id: 6, active: false, day: "tuesday" },
+]);
+
+function startDrag(evt, item: (typeof list.value)[0], day: string) {
+  console.log(evt, item);
+  evt.dataTransfer.dropEffect = "move";
+  evt.dataTransfer.effectAllowed = "move";
+  evt.dataTransfer.setData("itemID", item.id);
+  evt.dataTransfer.setData("day", day);
+  evt.dataTransfer.setData("activeStatus", item.active);
+}
+function onDrop(evt, l) {
+  console.log("onDrop", evt, list);
+
+  const itemID = evt.dataTransfer.getData("itemID");
+  const status = evt.dataTransfer.getData("activeStatus");
+  console.log(itemID, status);
+  const currentItem = list.value.find((el) => el.id === parseInt(itemID));
+  console.log(currentItem);
+
+  currentItem.day = "tuesday";
+}
+const Monday = computed(() => {
+  return list.value.filter((l) => l.day === "monday");
+});
+const Tuesday = computed(() => {
+  return list.value.filter((l) => l.day === "tuesday");
+});
+const schedule = ref({
+  monday: {
+    date: new Date(`August 15, 2024 7:30:00`),
+    employee: [
+      {
+        employee: "marine",
+        start: new Date("August 15, 2024 07:30:00"),
+        end: new Date("August 15, 2024 16:30:00"),
+      },
+      {
+        employee: "fanny",
+        start: new Date("August 15, 2024 10:00:00"),
+        end: new Date("August 15, 2024 15:30:00"),
+      },
+    ],
+    childs: [
+      {
+        number: 0,
+        start: new Date("August 15, 2024 07:30:00"),
+        end: new Date("August 15, 2024 09:30:00"),
+      },
+      {
+        number: 4,
+        start: new Date("August 15, 2024 10:00:00"),
+        end: new Date("August 15, 2024 12:30:00"),
+      },
+      {
+        number: 11,
+        start: new Date("August 15, 2024 13:00:00"),
+        end: new Date("August 15, 2024 17:30:00"),
+      },
+      {
+        number: 6,
+        start: new Date("August 15, 2024 18:00:00"),
+        end: new Date("August 15, 2024 18:30:00"),
+      },
+    ],
+  },
+  tuesday: {
+    date: new Date(`August 16, 2024 7:30:00`),
+    employee: [
+      {
+        employee: "marine",
+        start: new Date("August 16, 2024 07:30:00"),
+        end: new Date("August 16, 2024 12:00:00"),
+      },
+      {
+        employee: "fanny",
+        start: new Date("August 16, 2024 12:00:00"),
+        end: new Date("August 16, 2024 17:30:00"),
+      },
+    ],
+    childs: [
+      {
+        number: 3,
+        start: new Date("August 16, 2024 07:30:00"),
+        end: new Date("August 16, 2024 10:30:00"),
+      },
+      {
+        number: 7,
+        start: new Date("August 16, 2024 11:00:00"),
+        end: new Date("August 16, 2024 12:30:00"),
+      },
+      {
+        number: 8,
+        start: new Date("August 16, 2024 13:00:00"),
+        end: new Date("August 16, 2024 16:30:00"),
+      },
+      {
+        number: 4,
+        start: new Date("August 16, 2024 17:00:00"),
+        end: new Date("August 16, 2024 18:30:00"),
+      },
+    ],
+  },
+});
+
+function getMondayDate(d: Date) {
+  let initialDate = new Date(d); // Date initiale
+  let dates = [];
+
+  for (let i = 0; i <= 22; i++) {
+    dates.push(addMinutes(initialDate, i * 30)); // Ajoute des dates espacées de 30 minutes
+  }
+
+  return dates;
+}
+
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60000);
+}
+
+function isDateBetween(
+  date: Date,
+  employee: { employee: string; start: Date; end: Date }
+) {
+  console.log("date", date);
+  console.log("employee.start", employee.start);
+  console.log("date === employee.start", date === employee.start);
+
+  return {
+    start: date.getTime() === employee.start.getTime(),
+    end: date.getTime() === employee.end.getTime(),
+    active: date >= employee.start && date <= employee.end,
+  };
+}
+</script>
 <template>
-  <div>home</div>
+  <div class="flex flex-col gap-[70px] pt-12">
+    <div class="flex" v-for="(currentDay, key) in schedule">
+      <div class="pr-8">{{ key }}</div>
+      <div class="flex w-full max-w-[1000px]">
+        <div
+          v-for="(currentTime, indexTime) in getMondayDate(currentDay.date)"
+          class="w-[12%] flex flex-col gap-2 relative pt-2"
+          :data-date="currentTime"
+        >
+          <div
+            v-for="timeChild in currentDay.childs"
+            class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
+            :class="[
+              { 'bg-blue-400': isDateBetween(currentTime, timeChild).active },
+              {
+                'rounded-l-[8px]': isDateBetween(currentTime, timeChild).start,
+              },
+              {
+                'rounded-r-[8px]': isDateBetween(currentTime, timeChild).end,
+              },
+            ]"
+          >
+            <div
+              class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white"
+              v-if="isDateBetween(currentTime, timeChild).start"
+            >
+              👶 {{ timeChild.number }}
+            </div>
+          </div>
+          <div
+            class="absolute top-[-35px] text-xs -rotate-45"
+            :class="indexTime % 2 === 1 ? 'text-xs' : 'text-[8px]'"
+          >
+            {{ indexTime % 2 === 1 ? `${currentTime.getHours()}` : 30 }}
+          </div>
+          <div
+            class="absolute h-[calc(100%+15px)] top-[-15px] border"
+            :class="indexTime % 2 === 1 ? 'border-black/30' : 'border-black/10'"
+          ></div>
+          <div
+            v-for="timeEmployee in currentDay.employee"
+            class="w-full h-[24px] relative overflow-visible"
+            :class="[
+              { 'bg-red-400': isDateBetween(currentTime, timeEmployee).active },
+              {
+                'rounded-l-[8px]': isDateBetween(currentTime, timeEmployee)
+                  .start,
+              },
+              {
+                'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee).end,
+              },
+            ]"
+          >
+            <div
+              class="capitalize pl-2 absolute left-0 z-[1] text-white"
+              v-if="isDateBetween(currentTime, timeEmployee).start"
+            >
+              {{ timeEmployee.employee }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  <div class="flex flex-col gap-4">
+    <div class="flex items-center">
+      <div class="pr-4">Lundi</div>
+      <div
+        @dragover.prevent
+        @dragenter.prevent
+        @drop="onDrop($event, 'Lundi')"
+        class="border-foreground border rounded flex flex-col gap-2 p-4"
+      >
+        <div class="h-[10px] w-full flex">
+          <div
+            v-for="i in 22"
+            :key="i"
+            class="h-full w-[24px]"
+            :class="[
+              { 'h-full w-full rounded-l-full bg-blue-500 ': i === 1 },
+              { 'h-full w-full  bg-blue-500 ': i < 4 },
+              { 'h-full w-full rounded-r-full bg-blue-500 ': i === 4 },
+
+              { 'h-full w-full rounded-l-full bg-blue-500 ': i === 5 },
+              {
+                'h-full w-full   bg-blue-500 ': i > 3 && i < 10,
+              },
+              { 'h-full w-full rounded-l-full bg-blue-500 ': i === 10 },
+
+              { 'h-full w-full   bg-blue-500 ': i > 9 },
+              { 'h-full w-full rounded-r-full bg-blue-500 ': i === 22 },
+            ]"
+          ></div>
+        </div>
+        <div class="flex relative" @dragover.prevent @dragenter.prevent>
+          <div class="absolute top-0">marine</div>
+          <div
+            draggable="true"
+            v-for="i in 22"
+            :key="i"
+            :class="i > 5 ? 'bg-red-300' : 'bg-gray-50'"
+            class="h-[24px] w-[24px] border"
+          ></div>
+        </div>
+        <div class="flex relative">
+          <div class="absolute top-0">fanny</div>
+          <div
+            draggable="true"
+            v-for="i in 22"
+            :key="i"
+            :class="i > 10 ? 'bg-red-300' : 'bg-gray-50'"
+            class="h-[24px] w-[24px] border"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center">
+      <div class="pr-4">Mardi</div>
+      <div
+        @dragover.prevent
+        @dragenter.prevent
+        @drop="onDrop($event, 'Mardi')"
+        class="border-foreground border rounded flex flex-col gap-2 p-4"
+      >
+        <div class="flex relative" @dragover.prevent @dragenter.prevent>
+          <div class="absolute top-0">marine</div>
+          <div
+            draggable="true"
+            v-for="i in 22"
+            class="h-[24px] bg-gray-50 w-[24px] border"
+          ></div>
+        </div>
+        <div class="flex relative">
+          <div class="absolute top-0">fanny</div>
+          <div
+            draggable="true"
+            v-for="i in 22"
+            class="h-[24px] bg-gray-50 w-[24px] border"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!--   <div class="flex flex-col gap-2">
+    <div
+      class="flex gap-1"
+      @drop="onDrop($event, 1)"
+      @dragover.prevent
+      @dragenter.prevent
+    >
+      <div
+        v-for="item in Monday"
+        :key="`liste-1-${item.id}-${item.active}`"
+        class="h-4 w-4"
+        draggable="true"
+        :class="
+          item.active
+            ? 'bg-red-300 hover:bg-red-500'
+            : 'hover:bg-gray-500 bg-gray-300'
+        "
+        @dragstart="startDrag($event, item, 'monday')"
+      >
+        {{ item.id }}
+      </div>
+    </div>
+    <div
+      class="flex gap-1"
+      @drop="onDrop($event, 2)"
+      @dragover.prevent
+      @dragenter.prevent
+    >
+      <div
+        v-for="item in Tuesday"
+        :key="`liste-2-${item.id}-${item.active}`"
+        class="h-4 w-4"
+        draggable="true"
+        :data-active="item.active"
+        :class="
+          item.active
+            ? 'bg-red-300 hover:bg-red-500'
+            : 'hover:bg-gray-500 bg-gray-300'
+        "
+        @dragstart="startDrag($event, item, 'tuesday')"
+      >
+        {{ item.id }}
+      </div>
+    </div>
+  </div> -->
 </template>

@@ -16,7 +16,8 @@
 
   <div class="flex gap-2 flex-wrap">
     <Card
-      :class="cn('w-1/6 h-[190px] cursor-pointer', $attrs.class ?? '')"
+      draggable="true"
+      :class="cn('w-1/6 h-[190px]p pb-1 cursor-pointer', $attrs.class ?? '')"
       v-for="employee in employees"
       :key="employee.name"
       @click="
