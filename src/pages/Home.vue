@@ -28,11 +28,10 @@ function onLeave(evt) {
       (el) => el.name === itemID
     );
     console.log(currentItem);
-    if (isStart === "true") {
-      currentItem.start = new Date(start);
-    } else {
-      currentItem.end = new Date(end);
-    }
+    currentItem.start = new Date(start);
+
+    currentItem.end = new Date(end);
+
     console.log("onleav", evt, itemID, start, end, day);
   }, 300);
 }
@@ -41,7 +40,8 @@ function startDrag(
   evt,
   item: (typeof schedule.value.monday.employee)[0],
   day: string,
-  isStart: boolean
+  isDateBetween: { start: boolean; end: boolean; active: boolean },
+  currentDate: Date
 ) {
   console.log("startDrag", evt, item);
   evt.dataTransfer.dropEffect = "move";
@@ -50,7 +50,10 @@ function startDrag(
   evt.dataTransfer.setData("start", item.start);
   evt.dataTransfer.setData("end", item.end);
   evt.dataTransfer.setData("day", day);
-  evt.dataTransfer.setData("isStart", isStart);
+  evt.dataTransfer.setData("isStart", isDateBetween.start);
+  evt.dataTransfer.setData("isEnd", isDateBetween.end);
+  evt.dataTransfer.setData("active", isDateBetween.active);
+  evt.dataTransfer.setData("currentDate", currentDate);
 }
 function onDrop(evt, currentTime: Date) {
   clearInterval(interval.value);
@@ -60,14 +63,23 @@ function onDrop(evt, currentTime: Date) {
   const end = evt.dataTransfer.getData("end");
   const day = evt.dataTransfer.getData("day");
   const isStart = evt.dataTransfer.getData("isStart");
+  const isEnd = evt.dataTransfer.getData("isEnd");
+  const currentDate = evt.dataTransfer.getData("currentDate");
 
   const currentItem = schedule.value[day]?.employee?.find(
     (el) => el.name === itemID
   );
+  const newCurrentTime = new Date(currentTime);
   if (isStart === "true") {
     currentItem.start = new Date(currentTime);
-  } else {
+  } else if (isEnd === "true") {
     currentItem.end = new Date(currentTime);
+  } else {
+    const diffHours =
+      new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();
+    console.log(Math.floor(diffHours / 1000 / 60)); // Conversion en minutes)
+    currentItem.start = new Date(new Date(start).getTime() - diffHours);
+    currentItem.end = new Date(new Date(end).getTime() - diffHours);
   }
 }
 
@@ -187,7 +199,7 @@ function isDateBetween(
       <div class="flex w-full max-w-[1000px]">
         <div
           v-for="(currentTime, indexTime) in getMondayDate(currentDay.date)"
-          class="w-[12%] flex flex-col gap-2 relative pt-2"
+          class="w-[12%] flex flex-col gap-2 relative pt-2 group"
           :data-date="currentTime"
           @drop="onDrop($event, currentTime)"
           @dragover.prevent="onDrop($event, currentTime)"
@@ -237,13 +249,11 @@ function isDateBetween(
                 $event,
                 timeEmployee,
                 key,
-                isDateBetween(currentTime, timeEmployee).start
+                isDateBetween(currentTime, timeEmployee),
+                currentTime
               )
             "
-            :draggable="
-              isDateBetween(currentTime, timeEmployee).end ||
-              isDateBetween(currentTime, timeEmployee).start
-            "
+            :draggable="isDateBetween(currentTime, timeEmployee).active"
             :class="[
               { 'bg-red-400': isDateBetween(currentTime, timeEmployee).active },
               {
@@ -254,10 +264,13 @@ function isDateBetween(
                 'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee).end,
               },
               {
-                'hover:bg-red-500 cursor-pointer':
-                  isDateBetween(currentTime, timeEmployee).end ||
-                  isDateBetween(currentTime, timeEmployee).start,
+                'hover:bg-red-500':
+                  isDateBetween(currentTime, timeEmployee).start ||
+                  isDateBetween(currentTime, timeEmployee).end,
               },
+              isDateBetween(currentTime, timeEmployee).active
+                ? `${timeEmployee.name}-${key} cursor-pointer`
+                : ' ',
             ]"
           >
             <div
