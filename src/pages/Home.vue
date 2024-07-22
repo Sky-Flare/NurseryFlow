@@ -56,6 +56,7 @@ function onLeave(event, direct: boolean) {
       currentTime.start = new Date(start);
 
       currentTime.end = new Date(end);
+      currentDrag.value = undefined;
     },
     direct ? 0 : 300,
   );
@@ -81,6 +82,7 @@ function startDrag(
   isDateBetween: { start: boolean; end: boolean; active: boolean },
   currentDate: Date,
 ) {
+  console.log("start");
   currentDrag.value = {
     itemID: employee.name,
     start: hours.start.toString(),
@@ -93,10 +95,14 @@ function startDrag(
     hourId: hours.id.toString(),
   };
 }
-function onDrop(evt: DragEvent, currentTime: Date) {
+
+function onDrop(evt: DragEvent, currentTime: Date, drop = false) {
   if (!currentDrag.value) {
+    evt.preventDefault();
+    evt.stopPropagation();
     return;
   }
+
   clearInterval(interval.value);
 
   const itemID = currentDrag.value.itemID;
@@ -112,51 +118,89 @@ function onDrop(evt: DragEvent, currentTime: Date) {
     (el: ArrayElement<typeof schedule.value.Monday.employee>) =>
       el.name === itemID,
   ) as ArrayElement<typeof schedule.value.Monday.employee>;
-  const currentItem = currentEmployee.hours.find(
+  const currentHour = currentEmployee.hours.find(
     (cE) => cE.id === parseInt(hourId),
   );
 
-  if (!currentItem) {
+  if (!currentHour) {
     return;
   }
   const newCurrentTime = new Date(currentTime);
+  const newEndHour = new Date(new Date(currentHour.end).getTime() - 30 * 60000);
+
   if (isStart === "true") {
+    console.log('isStart === "true"');
+    //prevent change same hour
     if (newCurrentTime.getTime() >= new Date(currentDrag.value.end).getTime()) {
-      currentItem.start = newCurrentTime;
-      currentItem.end = new Date(newCurrentTime.getTime() + 30 * 60000);
+      currentHour.start = newCurrentTime;
+      currentHour.end = newEndHour;
       return;
     }
+    //prevent change other hours
     currentEmployee.hours
       .filter((h) => h.id !== parseInt(hourId))
       .forEach((el) => {
-        if (newCurrentTime.getTime() < el.end.getTime()) {
+        if (
+          newCurrentTime.getTime() < el.end.getTime() + 30 * 60000 &&
+          newCurrentTime.getTime() > el.start.getTime()
+        ) {
           el.end = newCurrentTime;
-          return;
         }
       });
-    currentItem.start = newCurrentTime;
+    currentHour.start = newCurrentTime;
   } else if (isEnd === "true") {
+    //prevent change same hour
     if (
       newCurrentTime.getTime() <= new Date(currentDrag.value.start).getTime()
     ) {
-      currentItem.start = new Date(newCurrentTime.getTime() - 30 * 60000);
-      currentItem.end = newCurrentTime;
+      currentHour.start = new Date(newCurrentTime.getTime() - 30 * 60000);
+      currentHour.end = newCurrentTime;
       return;
     }
+    //prevent change other hours
     currentEmployee.hours
       .filter((h) => h.id !== parseInt(hourId))
       .forEach((el) => {
-        if (newCurrentTime.getTime() > el.start.getTime()) {
-          el.start = new Date(newCurrentTime.getTime() + 30 * 60000);
-          return;
+        if (
+          newCurrentTime.getTime() > el.start.getTime() - 30 * 60000 &&
+          newCurrentTime.getTime() < el.end.getTime()
+        ) {
+          el.start = newEndHour;
         }
       });
-    currentItem.end = new Date(newCurrentTime.getTime() + 30 * 60000);
+    currentHour.end = currentTime;
   } else {
     const diffHours =
       new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();
-    currentItem.start = new Date(new Date(start).getTime() - diffHours);
-    currentItem.end = new Date(new Date(end).getTime() - diffHours);
+    const newStart = new Date(new Date(start).getTime() - diffHours);
+    const newEnd = new Date(new Date(end).getTime() - diffHours);
+    currentEmployee.hours
+      .filter((h) => h.id !== parseInt(hourId))
+      .forEach((el) => {
+        // if slide to the left (hours decrease)
+        if (diffHours > 0) {
+          if (
+            newStart.getTime() <= el.end.getTime() &&
+            newStart.getTime() > el.start.getTime()
+          ) {
+            el.end = newStart;
+          }
+          // if slide to the right (hours increase)
+        } else if (diffHours < 0) {
+          if (
+            newEnd.getTime() >= el.start.getTime() + 30 * 60000 &&
+            newEnd.getTime() < el.end.getTime()
+          ) {
+            el.start = new Date(newEnd.getTime());
+          }
+        }
+      });
+
+    currentHour.start = newStart;
+    currentHour.end = newEnd;
+  }
+  if (drop) {
+    currentDrag.value = undefined;
   }
 }
 
@@ -276,7 +320,21 @@ function getMondayDate(d: Date) {
 function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000);
 }
-
+function addHours(
+  employee: ArrayElement<typeof schedule.value.Monday.employee>,
+  day: Days,
+  currentTime: number,
+) {
+  console.log(employee, day, currentTime);
+  const currentEmployee = schedule.value[day].employee.find(
+    (el) => el.name === employee.name,
+  );
+  currentEmployee.hours.push({
+    id: currentEmployee.hours.length + 1,
+    start: new Date(currentTime),
+    end: new Date(new Date(currentTime).getTime() + 60 * 60000),
+  });
+}
 function deleteHour(day: Days, nameEmployee: string, hourId: number) {
   const currentEmployee = schedule.value[day].employee.find(
     (el) => el.name === nameEmployee,
@@ -302,7 +360,7 @@ function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
           v-for="(currentTime, indexTime) in getMondayDate(currentDay.date)"
           class="w-[12%] flex flex-col gap-2 relative pt-2 group"
           :data-date="currentTime"
-          @drop="onDrop($event, currentTime)"
+          @drop="onDrop($event, currentTime, true)"
           @dragover.prevent="onDrop($event, currentTime)"
           @dragenter.prevent
           @dragleave.prevent="onLeave($event)"
@@ -349,6 +407,11 @@ function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
           <!-- Time -->
           <template v-for="dayEmployee in currentDay.employee">
             <div
+              @click="
+                !isDateBetween(currentTime, timeEmployee).active
+                  ? addHours(dayEmployee, key, currentTime)
+                  : null
+              "
               v-for="timeEmployee in dayEmployee.hours"
               class="w-full h-[24px] relative overflow-visible"
               @dragstart="
@@ -381,7 +444,7 @@ function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
                 },
                 isDateBetween(currentTime, timeEmployee).active
                   ? `${dayEmployee.name}-${key} cursor-grab active:cursor-grabbing`
-                  : ' ',
+                  : 'hover:bg-red-200',
               ]"
             >
               <div
