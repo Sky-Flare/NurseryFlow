@@ -1,12 +1,12 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-
-export interface Employee {
+export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
+export type Employee = {
   id: number;
   name: string;
   hoursPerWeek: number;
   daysOff: string[];
-}
+};
 export type Days =
   | "Monday"
   | "Tuesday"
@@ -22,12 +22,7 @@ export interface Child {
   name: string;
   hours: Record<Days, HoursArray>;
 }
-const test: CHild = {
-  name: "sebastien",
-  hours: {
-    Monday: [],
-  },
-};
+
 interface State {
   employees: Employee[];
   childrenPerHour: number[][];

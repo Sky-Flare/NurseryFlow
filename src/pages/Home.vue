@@ -1,5 +1,22 @@
 <script setup lang="ts">
+import { ArrayElement } from "@/store";
 import { ref, computed } from "vue";
+import { Days } from "@/store/childStore";
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 const list = ref([
   {
     id: 1,
@@ -16,92 +33,129 @@ const list = ref([
   { id: 6, active: false, day: "tuesday" },
 ]);
 const interval = ref();
-function onLeave(evt) {
+function onLeave(evt: DragEvent) {
   clearInterval(interval.value);
-  const itemID = evt.dataTransfer.getData("itemID");
-  const start = evt.dataTransfer.getData("start");
-  const end = evt.dataTransfer.getData("end");
-  const day = evt.dataTransfer.getData("day");
-  const isStart = evt.dataTransfer.getData("isStart");
+  // if (!evt.dataTransfer) {
+  //   return;
+  // }
+  const itemID = currentDrag.value.itemID;
+  const start = currentDrag.value.start;
+  const end = currentDrag.value.end;
+  const day = currentDrag.value.day;
+  const isStart = currentDrag.value.isStart;
   interval.value = setTimeout(() => {
     const currentItem = schedule.value[day]?.employee?.find(
-      (el) => el.name === itemID
+      (el) => el.name === itemID,
     );
-    console.log(currentItem);
     currentItem.start = new Date(start);
 
     currentItem.end = new Date(end);
-
-    console.log("onleav", evt, itemID, start, end, day);
   }, 300);
 }
-
+const currentDrag = ref<{
+  itemID: string;
+  start: string;
+  end: string;
+  day: string;
+  isStart: string;
+  isEnd: string;
+  active: string;
+  currentDate: string;
+  hourId: string;
+}>();
 function startDrag(
-  evt,
-  item: (typeof schedule.value.monday.employee)[0],
+  evt: DragEvent,
+  hours: ArrayElement<
+    ArrayElement<typeof schedule.value.Monday.employee>["hours"]
+  >,
+  employee: ArrayElement<typeof schedule.value.Monday.employee>,
   day: string,
   isDateBetween: { start: boolean; end: boolean; active: boolean },
-  currentDate: Date
+  currentDate: Date,
 ) {
-  console.log("startDrag", evt, item);
-  evt.dataTransfer.dropEffect = "move";
-  evt.dataTransfer.effectAllowed = "move";
-  evt.dataTransfer.setData("itemID", item.name);
-  evt.dataTransfer.setData("start", item.start);
-  evt.dataTransfer.setData("end", item.end);
-  evt.dataTransfer.setData("day", day);
-  evt.dataTransfer.setData("isStart", isDateBetween.start);
-  evt.dataTransfer.setData("isEnd", isDateBetween.end);
-  evt.dataTransfer.setData("active", isDateBetween.active);
-  evt.dataTransfer.setData("currentDate", currentDate);
+  currentDrag.value = {
+    itemID: employee.name,
+    start: hours.start.toString(),
+    end: hours.end.toString(),
+    day: day,
+    isStart: isDateBetween.start.toString(),
+    isEnd: isDateBetween.end.toString(),
+    active: isDateBetween.active.toString(),
+    currentDate: currentDate.toString(),
+    hourId: hours.id.toString(),
+  };
+  console.log(evt.dataTransfer);
 }
-function onDrop(evt, currentTime: Date) {
+function onDrop(evt: DragEvent, currentTime: Date) {
+  if (!currentDrag.value) {
+    return;
+  }
   clearInterval(interval.value);
+  console.log(evt.dataTransfer);
 
-  const itemID = evt.dataTransfer.getData("itemID");
-  const start = evt.dataTransfer.getData("start");
-  const end = evt.dataTransfer.getData("end");
-  const day = evt.dataTransfer.getData("day");
-  const isStart = evt.dataTransfer.getData("isStart");
-  const isEnd = evt.dataTransfer.getData("isEnd");
-  const currentDate = evt.dataTransfer.getData("currentDate");
-
-  const currentItem = schedule.value[day]?.employee?.find(
-    (el) => el.name === itemID
+  const itemID = currentDrag.value.itemID;
+  const start = currentDrag.value.start;
+  const end = currentDrag.value.end;
+  const day = currentDrag.value.day;
+  const isStart = currentDrag.value.isStart;
+  const isEnd = currentDrag.value.isEnd;
+  const currentDate = currentDrag.value.currentDate;
+  const hourId = currentDrag.value.hourId;
+  console.log("day", day);
+  console.log("itemID", itemID);
+  const currentEmployee = schedule.value[day]?.employee?.find(
+    (el: ArrayElement<typeof schedule.value.Monday.employee>) =>
+      el.name === itemID,
+  ) as ArrayElement<typeof schedule.value.Monday.employee>;
+  console.log("currentEmployee", currentEmployee);
+  const currentItem = currentEmployee.hours.find(
+    (cE) => cE.id === parseInt(hourId),
   );
+
+  if (!currentItem) {
+    return;
+  }
   const newCurrentTime = new Date(currentTime);
   if (isStart === "true") {
-    currentItem.start = new Date(currentTime);
+    currentItem.start = newCurrentTime;
   } else if (isEnd === "true") {
-    currentItem.end = new Date(currentTime);
+    currentItem.end = new Date(newCurrentTime.getTime() + 30 * 60000);
   } else {
     const diffHours =
       new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();
-    console.log(Math.floor(diffHours / 1000 / 60)); // Conversion en minutes)
     currentItem.start = new Date(new Date(start).getTime() - diffHours);
     currentItem.end = new Date(new Date(end).getTime() - diffHours);
   }
 }
 
-const Monday = computed(() => {
-  return list.value.filter((l) => l.day === "monday");
-});
-const Tuesday = computed(() => {
-  return list.value.filter((l) => l.day === "tuesday");
-});
 const schedule = ref({
-  monday: {
+  Monday: {
     date: new Date(`August 15, 2024 7:30:00`),
     employee: [
       {
         name: "marine",
-        start: new Date("August 15, 2024 07:30:00"),
-        end: new Date("August 15, 2024 16:30:00"),
+        hours: [
+          {
+            id: 1,
+            start: new Date("August 15, 2024 07:30:00"),
+            end: new Date("August 15, 2024 16:30:00"),
+          },
+          {
+            id: 2,
+            start: new Date("August 15, 2024 17:00:00"),
+            end: new Date("August 15, 2024 18:30:00"),
+          },
+        ],
       },
       {
         name: "fanny",
-        start: new Date("August 15, 2024 10:00:00"),
-        end: new Date("August 15, 2024 15:30:00"),
+        hours: [
+          {
+            id: 1,
+            start: new Date("August 15, 2024 10:00:00"),
+            end: new Date("August 15, 2024 15:30:00"),
+          },
+        ],
       },
     ],
     childs: [
@@ -127,18 +181,28 @@ const schedule = ref({
       },
     ],
   },
-  tuesday: {
+  Tuesday: {
     date: new Date(`August 16, 2024 7:30:00`),
     employee: [
       {
         name: "marine",
-        start: new Date("August 16, 2024 07:30:00"),
-        end: new Date("August 16, 2024 12:00:00"),
+        hours: [
+          {
+            id: 1,
+            start: new Date("August 16, 2024 07:30:00"),
+            end: new Date("August 16, 2024 12:00:00"),
+          },
+        ],
       },
       {
         name: "fanny",
-        start: new Date("August 16, 2024 12:00:00"),
-        end: new Date("August 16, 2024 17:30:00"),
+        hours: [
+          {
+            id: 1,
+            start: new Date("August 16, 2024 12:00:00"),
+            end: new Date("August 16, 2024 17:30:00"),
+          },
+        ],
       },
     ],
     childs: [
@@ -177,20 +241,23 @@ function getMondayDate(d: Date) {
   return dates;
 }
 
-function addMinutes(date, minutes) {
+function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-function isDateBetween(
-  date: Date,
-  employee: { employee: string; start: Date; end: Date }
-) {
+function deleteHour(day: Days, nameEmployee: string, hourId: number) {
+  const currentEmployee = schedule.value[day].employee.find(
+    (el) => el.name === nameEmployee,
+  );
+  const curentHours = currentEmployee.hours.findIndex((el) => el.id === hourId);
+  currentEmployee.hours.splice(curentHours, 1);
+}
+function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
   return {
-    start: date.getTime() === employee.start.getTime(),
+    start: date.getTime() === hours.start.getTime(),
     end:
-      date.getTime() ===
-      new Date(employee.end.getTime() - 30 * 60000).getTime(),
-    active: date >= employee.start && date < employee.end,
+      date.getTime() === new Date(hours.end.getTime() - 30 * 60000).getTime(),
+    active: date >= hours.start && date < hours.end,
   };
 }
 </script>
@@ -248,45 +315,68 @@ function isDateBetween(
           ></div>
 
           <!-- Time -->
-          <div
-            v-for="timeEmployee in currentDay.employee"
-            class="w-full h-[24px] relative overflow-visible"
-            @dragstart="
-              startDrag(
-                $event,
-                timeEmployee,
-                key,
-                isDateBetween(currentTime, timeEmployee),
-                currentTime
-              )
-            "
-            :draggable="isDateBetween(currentTime, timeEmployee).active"
-            :class="[
-              { 'bg-red-400': isDateBetween(currentTime, timeEmployee).active },
-              {
-                'rounded-l-[8px]': isDateBetween(currentTime, timeEmployee)
-                  .start,
-              },
-              {
-                'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee).end,
-              },
-              {
-                'hover:bg-red-500 cursor-ew-resize':
-                  isDateBetween(currentTime, timeEmployee).start ||
-                  isDateBetween(currentTime, timeEmployee).end,
-              },
-              isDateBetween(currentTime, timeEmployee).active
-                ? `${timeEmployee.name}-${key} cursor-pointer`
-                : ' ',
-            ]"
-          >
-            <div
-              class="capitalize pl-2 absolute left-0 z-[1] text-white"
-              v-if="isDateBetween(currentTime, timeEmployee).start"
-            >
-              {{ timeEmployee.name }}
-            </div>
-          </div>
+          <template v-for="dayEmployee in currentDay.employee">
+            <ContextMenu>
+              <ContextMenuTrigger>
+                <div
+                  v-for="timeEmployee in dayEmployee.hours"
+                  class="w-full h-[24px] relative overflow-visible"
+                  @dragstart="
+                    startDrag(
+                      $event,
+                      timeEmployee,
+                      dayEmployee,
+                      key,
+                      isDateBetween(currentTime, timeEmployee),
+                      currentTime,
+                    )
+                  "
+                  :draggable="isDateBetween(currentTime, timeEmployee).active"
+                  :class="[
+                    {
+                      'bg-red-400': isDateBetween(currentTime, timeEmployee)
+                        .active,
+                    },
+                    {
+                      'rounded-l-[8px]': isDateBetween(
+                        currentTime,
+                        timeEmployee,
+                      ).start,
+                    },
+                    {
+                      'rounded-r-[8px]': isDateBetween(
+                        currentTime,
+                        timeEmployee,
+                      ).end,
+                    },
+                    {
+                      'hover:bg-red-500 !cursor-ew-resize':
+                        isDateBetween(currentTime, timeEmployee).start ||
+                        isDateBetween(currentTime, timeEmployee).end,
+                    },
+                    isDateBetween(currentTime, timeEmployee).active
+                      ? `${dayEmployee.name}-${key} cursor-grab active:cursor-grabbing`
+                      : ' ',
+                  ]"
+                >
+                  <div
+                    class="capitalize pl-2 absolute left-0 z-[1] text-white"
+                    v-if="isDateBetween(currentTime, timeEmployee).start"
+                  >
+                    {{ dayEmployee.name }}
+                  </div>
+                  <ContextMenuContent>
+                    <ContextMenuItem
+                      @click="
+                        deleteHour(key, dayEmployee.name, timeEmployee.id)
+                      "
+                      >Supprimer</ContextMenuItem
+                    >
+                  </ContextMenuContent>
+                </div>
+              </ContextMenuTrigger>
+            </ContextMenu>
+          </template>
         </div>
       </div>
     </div>
