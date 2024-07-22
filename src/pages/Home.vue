@@ -112,17 +112,17 @@ const schedule = ref({
       },
       {
         number: 4,
-        start: new Date("August 15, 2024 10:00:00"),
+        start: new Date("August 15, 2024 09:30:00"),
         end: new Date("August 15, 2024 12:30:00"),
       },
       {
         number: 11,
-        start: new Date("August 15, 2024 13:00:00"),
+        start: new Date("August 15, 2024 12:30:00"),
         end: new Date("August 15, 2024 17:30:00"),
       },
       {
         number: 6,
-        start: new Date("August 15, 2024 18:00:00"),
+        start: new Date("August 15, 2024 17:30:00"),
         end: new Date("August 15, 2024 18:30:00"),
       },
     ],
@@ -149,17 +149,17 @@ const schedule = ref({
       },
       {
         number: 7,
-        start: new Date("August 16, 2024 11:00:00"),
+        start: new Date("August 16, 2024 10:30:00"),
         end: new Date("August 16, 2024 12:30:00"),
       },
       {
         number: 8,
-        start: new Date("August 16, 2024 13:00:00"),
+        start: new Date("August 16, 2024 12:30:00"),
         end: new Date("August 16, 2024 16:30:00"),
       },
       {
         number: 4,
-        start: new Date("August 16, 2024 17:00:00"),
+        start: new Date("August 16, 2024 16:30:00"),
         end: new Date("August 16, 2024 18:30:00"),
       },
     ],
@@ -187,8 +187,10 @@ function isDateBetween(
 ) {
   return {
     start: date.getTime() === employee.start.getTime(),
-    end: date.getTime() === employee.end.getTime(),
-    active: date >= employee.start && date <= employee.end,
+    end:
+      date.getTime() ===
+      new Date(employee.end.getTime() - 30 * 60000).getTime(),
+    active: date >= employee.start && date < employee.end,
   };
 }
 </script>
@@ -207,26 +209,31 @@ function isDateBetween(
           @dragleave.prevent="onLeave($event)"
         >
           <!-- Childs -->
-          <div
-            v-for="timeChild in currentDay.childs"
-            class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
-            :class="[
-              { 'bg-blue-400': isDateBetween(currentTime, timeChild).active },
-              {
-                'rounded-l-[8px]': isDateBetween(currentTime, timeChild).start,
-              },
-              {
-                'rounded-r-[8px]': isDateBetween(currentTime, timeChild).end,
-              },
-            ]"
-          >
+          <template v-for="timeChild in currentDay.childs">
             <div
-              class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white"
-              v-if="isDateBetween(currentTime, timeChild).start"
+              class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
+              v-if="
+                timeChild.number && isDateBetween(currentTime, timeChild).active
+              "
+              :class="[
+                { 'bg-blue-400': isDateBetween(currentTime, timeChild).active },
+                {
+                  'rounded-l-[8px]': isDateBetween(currentTime, timeChild)
+                    .start,
+                },
+                {
+                  'rounded-r-[8px]': isDateBetween(currentTime, timeChild).end,
+                },
+              ]"
             >
-              👶 {{ timeChild.number }}
+              <div
+                class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white"
+                v-if="isDateBetween(currentTime, timeChild).start"
+              >
+                👶 {{ timeChild.number }}
+              </div>
             </div>
-          </div>
+          </template>
 
           <!-- Time Bar -->
           <div
@@ -236,8 +243,8 @@ function isDateBetween(
             {{ indexTime % 2 === 1 ? `${currentTime.getHours()}` : 30 }}
           </div>
           <div
-            class="absolute h-[calc(100%+15px)] top-[-15px] border"
-            :class="indexTime % 2 === 1 ? 'border-black/30' : 'border-black/10'"
+            class="absolute h-[calc(100%+15px)] top-[-15px] border border-foreground"
+            :class="indexTime % 2 === 1 ? ' opacity-30' : 'opacity-10'"
           ></div>
 
           <!-- Time -->
@@ -264,7 +271,7 @@ function isDateBetween(
                 'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee).end,
               },
               {
-                'hover:bg-red-500':
+                'hover:bg-red-500 cursor-ew-resize':
                   isDateBetween(currentTime, timeEmployee).start ||
                   isDateBetween(currentTime, timeEmployee).end,
               },

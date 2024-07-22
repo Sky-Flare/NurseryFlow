@@ -34,7 +34,7 @@ interface State {
   schedule: (Employee | null)[][][];
 }
 
-const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+const days: Days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hoursPerDay = 9;
 
 export const useStore = defineStore("main", () => {
