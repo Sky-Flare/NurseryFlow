@@ -33,7 +33,9 @@ const list = ref([
   { id: 6, active: false, day: "tuesday" },
 ]);
 const interval = ref();
-function onLeave(evt: DragEvent) {
+function onLeave(event, direct: boolean) {
+  event.stopPropagation();
+  event.preventDefault();
   clearInterval(interval.value);
   // if (!evt.dataTransfer) {
   //   return;
@@ -43,14 +45,20 @@ function onLeave(evt: DragEvent) {
   const end = currentDrag.value.end;
   const day = currentDrag.value.day;
   const isStart = currentDrag.value.isStart;
-  interval.value = setTimeout(() => {
-    const currentItem = schedule.value[day]?.employee?.find(
-      (el) => el.name === itemID,
-    );
-    currentItem.start = new Date(start);
+  interval.value = setTimeout(
+    () => {
+      const currentItem = schedule.value[day]?.employee?.find(
+        (el) => el.name === itemID,
+      );
+      const currentTime = currentItem.hours.find(
+        (c) => c.id === parseInt(currentDrag.value?.hourId),
+      );
+      currentTime.start = new Date(start);
 
-    currentItem.end = new Date(end);
-  }, 300);
+      currentTime.end = new Date(end);
+    },
+    direct ? 0 : 300,
+  );
 }
 const currentDrag = ref<{
   itemID: string;
@@ -84,14 +92,12 @@ function startDrag(
     currentDate: currentDate.toString(),
     hourId: hours.id.toString(),
   };
-  console.log(evt.dataTransfer);
 }
 function onDrop(evt: DragEvent, currentTime: Date) {
   if (!currentDrag.value) {
     return;
   }
   clearInterval(interval.value);
-  console.log(evt.dataTransfer);
 
   const itemID = currentDrag.value.itemID;
   const start = currentDrag.value.start;
@@ -101,13 +107,11 @@ function onDrop(evt: DragEvent, currentTime: Date) {
   const isEnd = currentDrag.value.isEnd;
   const currentDate = currentDrag.value.currentDate;
   const hourId = currentDrag.value.hourId;
-  console.log("day", day);
-  console.log("itemID", itemID);
+
   const currentEmployee = schedule.value[day]?.employee?.find(
     (el: ArrayElement<typeof schedule.value.Monday.employee>) =>
       el.name === itemID,
   ) as ArrayElement<typeof schedule.value.Monday.employee>;
-  console.log("currentEmployee", currentEmployee);
   const currentItem = currentEmployee.hours.find(
     (cE) => cE.id === parseInt(hourId),
   );
@@ -117,8 +121,36 @@ function onDrop(evt: DragEvent, currentTime: Date) {
   }
   const newCurrentTime = new Date(currentTime);
   if (isStart === "true") {
+    if (newCurrentTime.getTime() >= new Date(currentDrag.value.end).getTime()) {
+      currentItem.start = newCurrentTime;
+      currentItem.end = new Date(newCurrentTime.getTime() + 30 * 60000);
+      return;
+    }
+    currentEmployee.hours
+      .filter((h) => h.id !== parseInt(hourId))
+      .forEach((el) => {
+        if (newCurrentTime.getTime() < el.end.getTime()) {
+          el.end = newCurrentTime;
+          return;
+        }
+      });
     currentItem.start = newCurrentTime;
   } else if (isEnd === "true") {
+    if (
+      newCurrentTime.getTime() <= new Date(currentDrag.value.start).getTime()
+    ) {
+      currentItem.start = new Date(newCurrentTime.getTime() - 30 * 60000);
+      currentItem.end = newCurrentTime;
+      return;
+    }
+    currentEmployee.hours
+      .filter((h) => h.id !== parseInt(hourId))
+      .forEach((el) => {
+        if (newCurrentTime.getTime() > el.start.getTime()) {
+          el.start = new Date(newCurrentTime.getTime() + 30 * 60000);
+          return;
+        }
+      });
     currentItem.end = new Date(newCurrentTime.getTime() + 30 * 60000);
   } else {
     const diffHours =
@@ -316,66 +348,49 @@ function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
 
           <!-- Time -->
           <template v-for="dayEmployee in currentDay.employee">
-            <ContextMenu>
-              <ContextMenuTrigger>
-                <div
-                  v-for="timeEmployee in dayEmployee.hours"
-                  class="w-full h-[24px] relative overflow-visible"
-                  @dragstart="
-                    startDrag(
-                      $event,
-                      timeEmployee,
-                      dayEmployee,
-                      key,
-                      isDateBetween(currentTime, timeEmployee),
-                      currentTime,
-                    )
-                  "
-                  :draggable="isDateBetween(currentTime, timeEmployee).active"
-                  :class="[
-                    {
-                      'bg-red-400': isDateBetween(currentTime, timeEmployee)
-                        .active,
-                    },
-                    {
-                      'rounded-l-[8px]': isDateBetween(
-                        currentTime,
-                        timeEmployee,
-                      ).start,
-                    },
-                    {
-                      'rounded-r-[8px]': isDateBetween(
-                        currentTime,
-                        timeEmployee,
-                      ).end,
-                    },
-                    {
-                      'hover:bg-red-500 !cursor-ew-resize':
-                        isDateBetween(currentTime, timeEmployee).start ||
-                        isDateBetween(currentTime, timeEmployee).end,
-                    },
-                    isDateBetween(currentTime, timeEmployee).active
-                      ? `${dayEmployee.name}-${key} cursor-grab active:cursor-grabbing`
-                      : ' ',
-                  ]"
-                >
-                  <div
-                    class="capitalize pl-2 absolute left-0 z-[1] text-white"
-                    v-if="isDateBetween(currentTime, timeEmployee).start"
-                  >
-                    {{ dayEmployee.name }}
-                  </div>
-                  <ContextMenuContent>
-                    <ContextMenuItem
-                      @click="
-                        deleteHour(key, dayEmployee.name, timeEmployee.id)
-                      "
-                      >Supprimer</ContextMenuItem
-                    >
-                  </ContextMenuContent>
-                </div>
-              </ContextMenuTrigger>
-            </ContextMenu>
+            <div
+              v-for="timeEmployee in dayEmployee.hours"
+              class="w-full h-[24px] relative overflow-visible"
+              @dragstart="
+                startDrag(
+                  $event,
+                  timeEmployee,
+                  dayEmployee,
+                  key,
+                  isDateBetween(currentTime, timeEmployee),
+                  currentTime,
+                )
+              "
+              :draggable="isDateBetween(currentTime, timeEmployee).active"
+              :class="[
+                {
+                  'bg-red-400': isDateBetween(currentTime, timeEmployee).active,
+                },
+                {
+                  'rounded-l-[8px]': isDateBetween(currentTime, timeEmployee)
+                    .start,
+                },
+                {
+                  'rounded-r-[8px]': isDateBetween(currentTime, timeEmployee)
+                    .end,
+                },
+                {
+                  'hover:bg-red-500 !cursor-ew-resize':
+                    isDateBetween(currentTime, timeEmployee).start ||
+                    isDateBetween(currentTime, timeEmployee).end,
+                },
+                isDateBetween(currentTime, timeEmployee).active
+                  ? `${dayEmployee.name}-${key} cursor-grab active:cursor-grabbing`
+                  : ' ',
+              ]"
+            >
+              <div
+                class="capitalize pl-2 absolute left-0 z-[1] text-white"
+                v-if="isDateBetween(currentTime, timeEmployee).start"
+              >
+                {{ dayEmployee.name }}
+              </div>
+            </div>
           </template>
         </div>
       </div>
