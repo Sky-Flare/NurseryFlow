@@ -121,7 +121,7 @@ export const useDragAndDrop = () => {
             newCurrentTime.getTime() > el.start.getTime() - 30 * 60000 &&
             newCurrentTime.getTime() < el.end.getTime()
           ) {
-            el.start = newEndHour;
+            el.start = new Date(new Date(currentHour.end).getTime());
           }
         });
       currentHour.end = currentTime;

@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { ArrayElement } from "@/store/index";
+import { ArrayElement, StatusEmployee } from "@/store/index";
 import { schedule } from "@/store/drag";
 import { Days } from "@/store/childStore";
 

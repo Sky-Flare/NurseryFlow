@@ -1,40 +1,63 @@
 <template>
-  <div class="flex items-center gap-4 mb-2">
-    <h2
-      @click="openEditForm = true"
-      class="cursor-pointer text-xl font-semibold"
-    >
-      Liste des employés
-    </h2>
-    <Button
-      @click="openEditForm = true"
-      class="rounded-full w-[20px] h-[20px] flex items-center justify-center p-0"
-    >
-      <font-awesome-icon :icon="['fas', 'plus']" />
-    </Button>
-  </div>
-
-  <div class="flex gap-2 flex-wrap">
-    <Card
-      draggable="true"
-      :class="cn('w-1/6 h-[190px]p pb-1 cursor-pointer', $attrs.class ?? '')"
-      v-for="employee in employees"
-      :key="employee.name"
-      @click="
-        employeeToEdit = employee;
-        openEditForm = true;
-      "
-    >
-      <CardHeader>
-        <CardTitle class="capitalize">{{ employee.name }}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <span class="block">{{ employee.hoursPerWeek }} h/semaine</span>
-        <span v-if="employee.daysOff.length"
-          >Days off : {{ employee.daysOff.join(", ") }}</span
+  <div class="max-w-[740px] mt-8 mx-auto">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead class="w-[100px]"> Nom </TableHead>
+          <TableHead class="text-center">Nombre d'heures</TableHead>
+          <TableHead class="text-center">Jours de congés</TableHead>
+          <TableHead class="text-center">Status</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow
+          v-for="employee in employees"
+          :key="employee.name"
+          class="cursor-pointer hover:bg-accent"
+          @click="
+            employeeToEdit = employee;
+            openEditForm = true;
+          "
         >
-      </CardContent>
-    </Card>
+          <TableCell class="font-medium capitalize">
+            {{ employee.name }}
+          </TableCell>
+          <TableCell class="text-center">{{ employee.hoursPerWeek }}</TableCell>
+          <TableCell>
+            {{ employee.daysOff.join(", ") }}
+          </TableCell>
+          <TableCell class="text-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger class="text-2xl">{{
+                  getStatusEmployee(employee.status).icon
+                }}</TooltipTrigger>
+                <TooltipContent>
+                  <p>{{ getStatusEmployee(employee.status).label }}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </TableCell>
+        </TableRow>
+        <TableRow
+          @click="openEditForm = true"
+          class="cursor-alias hover:bg-accent"
+        >
+          <TableCell class="font-medium capitalize">
+            <Button
+              @click="openEditForm = true"
+              class="rounded-full w-[20px] h-[20px] flex items-center justify-center p-0"
+            >
+              <font-awesome-icon :icon="['fas', 'plus']" /> </Button
+          ></TableCell>
+          <TableCell></TableCell>
+          <TableCell> </TableCell>
+          <TableCell> </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  </div>
+  <div class="flex gap-2 flex-wrap">
     <add-employee-form
       :key="employeeToEdit?.id ?? openEditForm.toString()"
       v-model:open="openEditForm"
@@ -58,9 +81,23 @@ import { cn } from "@/components/lib/utils";
 import AddEmployeeForm from "@/components/AddEmployeeForm.vue";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+const { getStatusEmployee, removeEmployee, employees } = useStore();
 
-const store = useStore();
-const employees = computed(() => store.employees);
 const openEditForm = ref(false);
 const employeeToEdit = ref<Employee>();
 watch(openEditForm, (v) => {
@@ -68,9 +105,6 @@ watch(openEditForm, (v) => {
     employeeToEdit.value = undefined;
   }
 });
-const removeEmployee = (name: string) => {
-  store.removeEmployee(name);
-};
 </script>
 
 <style scoped>

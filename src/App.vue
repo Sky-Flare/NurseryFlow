@@ -74,6 +74,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
 import { computed, ref, watch } from "vue";
+import Test from "@/components/test.vue";
 
 const currentTrigger = ref("");
 function changeTheme() {

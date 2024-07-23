@@ -4,18 +4,10 @@ import CellEmployee from "@/components/CellEmployee.vue";
 
 import { useDragAndDrop } from "@/store/useDragAndDrop";
 import { useScheduleStore } from "@/store/scheduleStore";
+import CellChild from "@/components/CellChild.vue";
 
 const { schedule, getTimeSlot } = useScheduleStore();
 const { onDrop, onLeave } = useDragAndDrop();
-
-function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
-  return {
-    start: date.getTime() === hours.start.getTime(),
-    end:
-      date.getTime() === new Date(hours.end.getTime() - 30 * 60000).getTime(),
-    active: date >= hours.start && date < hours.end,
-  };
-}
 </script>
 <template>
   <div class="flex flex-col gap-[70px] pt-12">
@@ -31,34 +23,10 @@ function isDateBetween(date: Date, hours: { start: Date; end: Date }) {
           @dragenter.prevent
           @dragleave.prevent="onLeave"
         >
-          <!-- Childs -->
           <template v-for="timeChild in currentDay.childs">
-            <div
-              class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
-              v-if="
-                timeChild.number && isDateBetween(currentTime, timeChild).active
-              "
-              :class="[
-                { 'bg-blue-400': isDateBetween(currentTime, timeChild).active },
-                {
-                  'rounded-l-[8px]': isDateBetween(currentTime, timeChild)
-                    .start,
-                },
-                {
-                  'rounded-r-[8px]': isDateBetween(currentTime, timeChild).end,
-                },
-              ]"
-            >
-              <div
-                class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white"
-                v-if="isDateBetween(currentTime, timeChild).start"
-              >
-                👶 {{ timeChild.number }}
-              </div>
-            </div>
+            <cell-child :current-time="currentTime" :time-child="timeChild" />
           </template>
 
-          <!-- Time Bar -->
           <time-bar :current-time="currentTime" :index-time="indexTime" />
 
           <template v-for="dayEmployee in currentDay.employee">

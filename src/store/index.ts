@@ -1,11 +1,17 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
+export enum StatusEmployee {
+  SICK = "sick",
+  VACATION = "vacation",
+  WORKING = "working",
+}
 export type Employee = {
   id: number;
   name: string;
   hoursPerWeek: number;
   daysOff: string[];
+  status: StatusEmployee;
 };
 export type Days =
   | "Monday"
@@ -39,24 +45,28 @@ export const useStore = defineStore("main", () => {
       hoursPerWeek: 28,
       daysOff: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
       id: 1721388146335,
+      status: StatusEmployee.WORKING,
     },
     {
       name: "fanny",
       hoursPerWeek: 35,
       daysOff: [],
       id: 1,
+      status: StatusEmployee.WORKING,
     },
     {
       name: "roxanne",
       hoursPerWeek: 35,
       daysOff: [],
       id: 2,
+      status: StatusEmployee.WORKING,
     },
     {
       name: "anne",
       hoursPerWeek: 35,
       daysOff: [],
       id: 3,
+      status: StatusEmployee.WORKING,
     },
   ]);
 
@@ -73,6 +83,19 @@ export const useStore = defineStore("main", () => {
     console.log(employees.value);
     employee.id = new Date().getTime();
     employees.value.push(employee);
+  }
+
+  function getStatusEmployee(status: StatusEmployee) {
+    switch (status) {
+      case StatusEmployee.SICK:
+        return { label: "Malade", icon: "🤒️" };
+      case StatusEmployee.WORKING:
+        return { label: "Travail", icon: "💼‍️" };
+      case StatusEmployee.VACATION:
+        return { label: "Vacances", icon: "🏝️" };
+      default:
+        return "";
+    }
   }
 
   function removeEmployee(name: string) {
@@ -94,7 +117,7 @@ export const useStore = defineStore("main", () => {
       () =>
         Array(hoursPerDay)
           .fill(null)
-          .map(() => [])
+          .map(() => []),
     );
 
     const employeesNeededPerHour = childrenPerHour.value.map((day) =>
@@ -102,13 +125,13 @@ export const useStore = defineStore("main", () => {
         if (children <= 3) return 1;
         if (children >= 4 && children <= 13) return 2;
         return 3; // 14 enfants ou plus
-      })
+      }),
     );
 
     // Répartir les heures de chaque employé de manière équilibrée sur les jours de travail
     const employeeHoursRemaining = new Map<Employee, number>();
     employees.value.forEach((employee) =>
-      employeeHoursRemaining.set(employee, employee.hoursPerWeek)
+      employeeHoursRemaining.set(employee, employee.hoursPerWeek),
     );
     console.log(employeeHoursRemaining);
 
@@ -129,9 +152,9 @@ export const useStore = defineStore("main", () => {
                   (emp) =>
                     emp !== null &&
                     emp !== undefined &&
-                    emp.name === employee.name
-                )
-              )
+                    emp.name === employee.name,
+                ),
+              ),
         );
 
         // Ajouter les employés nécessaires pour cette heure
@@ -152,12 +175,12 @@ export const useStore = defineStore("main", () => {
           schdl[dayIndex][hourIndex].push(selectedEmployee);
           employeeHoursRemaining.set(
             selectedEmployee,
-            employeeHoursRemaining.get(selectedEmployee)! - 1
+            employeeHoursRemaining.get(selectedEmployee)! - 1,
           );
           // Enlever cet employé de la liste des disponibles pour cette heure
           availableEmployees.splice(
             availableEmployees.indexOf(selectedEmployee),
-            1
+            1,
           );
         }
 
@@ -199,5 +222,6 @@ export const useStore = defineStore("main", () => {
     setChildrenPerHour,
     generateSchedule,
     updateEmployee,
+    getStatusEmployee,
   };
 });
