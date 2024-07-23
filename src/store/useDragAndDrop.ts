@@ -124,7 +124,7 @@ export const useDragAndDrop = () => {
             el.start = new Date(new Date(currentHour.end).getTime());
           }
         });
-      currentHour.end = currentTime;
+      currentHour.end = new Date(newCurrentTime.getTime() + 30 * 60000);
     } else {
       const diffHours =
         new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();

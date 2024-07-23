@@ -78,8 +78,14 @@ import Test from "@/components/test.vue";
 
 const currentTrigger = ref("");
 function changeTheme() {
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark") ? "light" : "dark",
+  );
   document.body.classList.toggle("dark");
 }
+localStorage.getItem("theme") === "dark" &&
+  document.body.classList.toggle("dark");
 </script>
 
 <style scoped></style>

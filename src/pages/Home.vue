@@ -13,6 +13,7 @@ const { onDrop, onLeave } = useDragAndDrop();
   <div class="flex flex-col gap-[70px] pt-12">
     <div class="flex" v-for="(currentDay, key) in schedule">
       <div class="pr-8">{{ key }}</div>
+
       <div class="flex w-full max-w-[1000px]">
         <div
           v-for="(currentTime, indexTime) in getTimeSlot(currentDay.date)"
@@ -29,7 +30,7 @@ const { onDrop, onLeave } = useDragAndDrop();
 
           <time-bar :current-time="currentTime" :index-time="indexTime" />
 
-          <template v-for="dayEmployee in currentDay.employee">
+          <template v-for="(dayEmployee, indexE) in currentDay.employee">
             <cell-employee
               v-for="timeEmployee in dayEmployee.hours"
               :key="timeEmployee.id"

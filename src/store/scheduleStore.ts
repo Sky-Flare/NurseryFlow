@@ -17,11 +17,6 @@ export const useScheduleStore = defineStore("schedule", () => {
               start: new Date("August 15, 2024 07:30:00"),
               end: new Date("August 15, 2024 16:30:00"),
             },
-            {
-              id: 2,
-              start: new Date("August 15, 2024 17:00:00"),
-              end: new Date("August 15, 2024 18:30:00"),
-            },
           ],
         },
         {

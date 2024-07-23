@@ -68,7 +68,7 @@ const onSubmit = handleSubmit((values) => {
     daysOff: values.days,
     status: values.status,
   };
-  const daysSentence = values.days
+  const daysSentence = values.days.length
     ? ", et est en congé les " + values.days.join(", ")
     : "";
   if (props.edit) {

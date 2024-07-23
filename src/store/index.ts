@@ -52,7 +52,7 @@ export const useStore = defineStore("main", () => {
       hoursPerWeek: 35,
       daysOff: [],
       id: 1,
-      status: StatusEmployeeOrChild.WORKING,
+      status: StatusEmployeeOrChild.SICK,
     },
     {
       name: "roxanne",
@@ -62,11 +62,11 @@ export const useStore = defineStore("main", () => {
       status: StatusEmployeeOrChild.WORKING,
     },
     {
-      name: "anne",
+      name: "Sandrine",
       hoursPerWeek: 35,
       daysOff: [],
       id: 3,
-      status: StatusEmployeeOrChild.WORKING,
+      status: StatusEmployeeOrChild.VACATION,
     },
   ]);
 
