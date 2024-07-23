@@ -2,7 +2,7 @@
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { Employee, StatusEmployee, useStore } from "@/store";
+import { Employee, StatusEmployeeOrChild, useStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getState } from "radix-vue/dist/Checkbox/utils";
+import { Days } from "@/store/childStore";
 
 const props = defineProps<{
   edit?: Employee;
@@ -45,7 +46,7 @@ const formSchema = toTypedSchema(
     username: z.string().min(2).max(50),
     hours: z.number().min(0).max(48),
     days: z.array(z.string()),
-    status: z.nativeEnum(StatusEmployee),
+    status: z.nativeEnum(StatusEmployeeOrChild),
   }),
 );
 
@@ -55,7 +56,7 @@ const { handleSubmit } = useForm({
     username: props.edit?.name ?? "",
     hours: props.edit?.hoursPerWeek ?? 35,
     days: props.edit?.daysOff ?? [],
-    status: props.edit?.status ?? StatusEmployee.WORKING,
+    status: props.edit?.status ?? StatusEmployeeOrChild.WORKING,
   },
 });
 
@@ -67,16 +68,19 @@ const onSubmit = handleSubmit((values) => {
     daysOff: values.days,
     status: values.status,
   };
+  const daysSentence = values.days
+    ? ", et est en congé les " + values.days.join(", ")
+    : "";
   if (props.edit) {
     toast({
       title: "Employé modifié",
-      description: `${values.username}, fait ${values.hours} heures, et ne travail pas les ${values.days}`,
+      description: `${values.username}, fait ${values.hours} heures ${daysSentence}`,
     });
     updateEmployee({ ...employee, id: props.edit.id });
   } else {
     toast({
       title: "Employé ajouté",
-      description: `${values.username}, fait ${values.hours} heures, et ne travail pas les ${values.days}`,
+      description: `${values.username}, fait ${values.hours} heures ${daysSentence}`,
     });
     addEmployee(employee);
   }
@@ -158,7 +162,7 @@ const onSubmit = handleSubmit((values) => {
                   </FormControl>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem v-for="s in StatusEmployee" :value="s">
+                      <SelectItem v-for="s in StatusEmployeeOrChild" :value="s">
                         {{ getStatusEmployee(s).label }}
                         {{ getStatusEmployee(s).icon }}
                       </SelectItem>

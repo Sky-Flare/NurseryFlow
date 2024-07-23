@@ -20,15 +20,32 @@ import {
   DialogScrollContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 
-import { Child, Days, HoursArray, useStore } from "@/store/childStore";
+import { Child, Days, HoursArray, useChildStore } from "@/store/childStore";
+import { StatusEmployeeOrChild } from "@/store";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const props = defineProps<{ child?: Child }>();
 const open = defineModel<boolean>("open");
 const { toast } = useToast();
 const days: Days[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const store = useStore();
+const { updateChild, addChild, getStatusChild } = useChildStore();
 
 // Génération des options de temps
 const timeOptions: string[] = [""];
@@ -55,9 +72,10 @@ const formSchema = toTypedSchema(
         start: z.string(),
         end: z.string(),
         total: z.number(),
-      })
+      }),
     ),
-  })
+    status: z.nativeEnum(StatusEmployeeOrChild),
+  }),
 );
 
 const { handleSubmit, values, errors } = useForm({
@@ -72,8 +90,9 @@ const { handleSubmit, values, errors } = useForm({
           end: props.child?.hours?.[day]?.end ?? "18:30",
           total: props.child?.total ?? 0,
         },
-      ])
+      ]),
     ),
+    status: props.child?.status ?? StatusEmployeeOrChild.WORKING,
   },
 });
 
@@ -114,12 +133,13 @@ const onSubmit = handleSubmit((values) => {
     name: values.username,
     hours: finalHours,
     total: totalHoursPerWeek.value,
+    status: values.status,
   };
 
   if (props.child) {
-    store.updateChild({ ...child, id: props.child.id });
+    updateChild({ ...child, id: props.child.id });
   } else {
-    store.addChild(child);
+    addChild(child);
   }
   console.log(child);
   toast({
@@ -158,71 +178,112 @@ const totalHoursPerWeek = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:open="open" :default-open="true">
-    <DialogScrollContent class="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Information sur l'enfant</DialogTitle>
-        <DialogDescription
-          >Renseignez les informations de l'enfant</DialogDescription
-        >
-      </DialogHeader>
-      <form class="space-y-6" @submit="onSubmit">
-        <FormField v-slot="{ componentField }" name="username">
-          <FormItem>
-            <FormLabel>Prenom</FormLabel>
-            <FormControl>
-              <Input type="text" placeholder="Prenom" v-bind="componentField" />
-            </FormControl>
-            <FormMessage>{{ errors.username }}</FormMessage>
-          </FormItem>
-        </FormField>
+  <Sheet v-model:open="open" :default-open="true">
+    <SheetContent>
+      <SheetTitle>
+        {{ child ? "Changement profil" : "Création du profil" }}
+      </SheetTitle>
 
-        <div v-for="day in days" :key="day">
-          <div>{{ day }}</div>
-          <div class="flex space-x-4 items-center">
-            <FormField v-slot="{ field }" :name="`hours.${day}.start`">
+      <SheetHeader>
+        <SheetDescription>
+          <form class="space-y-6" @submit="onSubmit">
+            <FormField v-slot="{ componentField }" name="username">
               <FormItem>
-                <FormLabel class="pr-2">Début</FormLabel>
+                <FormLabel>Prenom</FormLabel>
                 <FormControl>
-                  <select v-bind="field" class="bg-background text-foreground">
-                    <option
-                      v-for="time in timeOptions"
-                      :key="time"
-                      :value="time"
-                    >
-                      {{ time }}
-                    </option>
-                  </select>
+                  <Input
+                    type="text"
+                    placeholder="Prenom"
+                    v-bind="componentField"
+                  />
                 </FormControl>
+                <FormMessage>{{ errors.username }}</FormMessage>
               </FormItem>
             </FormField>
-            <FormField v-slot="{ field }" :name="`hours.${day}.end`">
+
+            <div v-for="day in days" :key="day">
+              <div>{{ day }}</div>
+              <div class="flex space-x-4 items-center">
+                <FormField v-slot="{ field }" :name="`hours.${day}.start`">
+                  <FormItem>
+                    <FormLabel class="pr-2">Début</FormLabel>
+                    <FormControl>
+                      <select
+                        v-bind="field"
+                        class="bg-background text-foreground"
+                      >
+                        <option
+                          v-for="time in timeOptions"
+                          :key="time"
+                          :value="time"
+                        >
+                          {{ time }}
+                        </option>
+                      </select>
+                    </FormControl>
+                  </FormItem>
+                </FormField>
+                <FormField v-slot="{ field }" :name="`hours.${day}.end`">
+                  <FormItem>
+                    <FormLabel class="pr-2">Fin</FormLabel>
+                    <FormControl>
+                      <select
+                        v-bind="field"
+                        class="bg-background text-foreground"
+                      >
+                        <option
+                          v-for="time in timeOptions"
+                          :key="time"
+                          :value="time"
+                        >
+                          {{ time }}
+                        </option>
+                      </select>
+                    </FormControl>
+                  </FormItem>
+                </FormField>
+                <div class="flex items-end">
+                  {{ totalHoursPerDays(day) }} heures
+                </div>
+              </div>
+            </div>
+
+            <FormField v-slot="{ componentField }" name="status">
               <FormItem>
-                <FormLabel class="pr-2">Fin</FormLabel>
-                <FormControl>
-                  <select v-bind="field" class="bg-background text-foreground">
-                    <option
-                      v-for="time in timeOptions"
-                      :key="time"
-                      :value="time"
-                    >
-                      {{ time }}
-                    </option>
-                  </select>
-                </FormControl>
+                <FormLabel>Status</FormLabel>
+                <Select v-bind="componentField">
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder="Select a verified email to display"
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem
+                        v-for="status in StatusEmployeeOrChild"
+                        :value="status"
+                      >
+                        {{ getStatusChild(status).label }}
+                        {{ getStatusChild(status).icon }}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
               </FormItem>
             </FormField>
-            <div>{{ totalHoursPerDays(day) }}</div>
-          </div>
-        </div>
 
-        <DialogFooter class="block">
-          <div class="pb-4">
-            Total de la semaine {{ totalHoursPerWeek }} heures
-          </div>
-          <Button type="submit">Enregistrer</Button>
-        </DialogFooter>
-      </form>
-    </DialogScrollContent>
-  </Dialog>
+            <DialogFooter class="block">
+              <div class="pb-4">
+                Total de la semaine {{ totalHoursPerWeek }} heures
+              </div>
+              <Button type="submit">Enregistrer</Button>
+            </DialogFooter>
+          </form>
+        </SheetDescription>
+      </SheetHeader>
+    </SheetContent>
+  </Sheet>
 </template>

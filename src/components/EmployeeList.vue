@@ -1,17 +1,82 @@
 <template>
-  <div class="max-w-[740px] mt-8 mx-auto">
+  <div class="max-w-[740px] mx-auto">
+    <Button @click="openEditForm = true">Ajouter</Button>
+    <div class="flex justify-between my-4">
+      <div>
+        <Input v-model="search" placeholder="Recherche" />
+      </div>
+      <div class="flex gap-2">
+        <Button
+          :variant="!currentFilter?.includes(s) ? 'outline' : ''"
+          @click="
+            currentFilter.includes(s)
+              ? (currentFilter = currentFilter.filter((f) => f !== s))
+              : currentFilter.push(s);
+            currentFilterType = FilterType.STATUS;
+          "
+          v-for="s in StatusEmployeeOrChild"
+          >{{ getStatusEmployee(s).icon }}</Button
+        >
+      </div>
+    </div>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead class="w-[100px]"> Nom </TableHead>
-          <TableHead class="text-center">Nombre d'heures</TableHead>
+          <TableHead
+            class="w-[100px] cursor-pointer"
+            @click="
+              currentSortType = SortType.NAME;
+              currentSort = currentSort === Sort.ASC ? Sort.DESC : Sort.ASC;
+            "
+          >
+            Nom
+            <font-awesome-icon
+              v-if="currentSortType === SortType.NAME"
+              :icon="[
+                'fas',
+                currentSort === Sort.ASC ? 'sort-alpha-asc' : 'sort-alpha-desc',
+              ]"
+            />
+          </TableHead>
+
+          <TableHead
+            class="text-center cursor-pointer"
+            @click="
+              currentSortType = SortType.HOURS;
+              currentSort = currentSort === Sort.ASC ? Sort.DESC : Sort.ASC;
+            "
+            >Nombre d'heures
+            <font-awesome-icon
+              v-if="currentSortType === SortType.HOURS"
+              :icon="[
+                'fas',
+                currentSort === Sort.ASC
+                  ? 'sort-numeric-asc'
+                  : 'sort-numeric-desc',
+              ]"
+          /></TableHead>
           <TableHead class="text-center">Jours de congés</TableHead>
-          <TableHead class="text-center">Status</TableHead>
+          <TableHead
+            class="text-center cursor-pointer"
+            @click="
+              currentSortType = SortType.STATUS;
+              currentSort = currentSort === Sort.ASC ? Sort.DESC : Sort.ASC;
+            "
+            >Status
+            <font-awesome-icon
+              v-if="currentSortType === SortType.STATUS"
+              :icon="[
+                'fas',
+                currentSort === Sort.ASC
+                  ? 'sort-numeric-asc'
+                  : 'sort-numeric-desc',
+              ]"
+          /></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         <TableRow
-          v-for="employee in employees"
+          v-for="employee in employeesFiltered"
           :key="employee.name"
           class="cursor-pointer hover:bg-accent"
           @click="
@@ -68,7 +133,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { Employee, useStore } from "../store/index";
+import { Employee, StatusEmployeeOrChild, useStore } from "../store/index";
 import {
   Card,
   CardContent,
@@ -96,7 +161,72 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Input from "@/components/ui/input/Input.vue";
 const { getStatusEmployee, removeEmployee, employees } = useStore();
+
+enum SortType {
+  NAME = "name",
+  STATUS = "status",
+  HOURS = "hours",
+  NONE = "none",
+}
+enum FilterType {
+  STATUS = "status",
+  NONE = "none",
+}
+
+enum Sort {
+  ASC = "asc",
+  DESC = "desc",
+}
+const search = ref("");
+const currentSortType = ref<SortType>(SortType.NONE);
+const currentFilterType = ref<FilterType>(FilterType.NONE);
+const currentFilter = ref<StatusEmployeeOrChild[]>([]);
+const currentSort = ref<Sort>(Sort.ASC);
+const employeesFiltered = computed(() => {
+  console.log(currentSortType.value);
+  console.log(currentSort.value);
+  let currentEmployeeList = [...employees];
+  console.log(currentEmployeeList);
+  if (search.value) {
+    console.log("icic");
+    currentEmployeeList = currentEmployeeList.filter((e) =>
+      e.name.toLowerCase().includes(search.value.toLowerCase()),
+    );
+  }
+  if (currentFilterType.value !== FilterType.NONE) {
+    console.log("currentFilterType.value !== FilterType.NONE");
+    currentEmployeeList = currentEmployeeList.filter(
+      (e) => currentFilter.value?.includes(e.status),
+    );
+  }
+  if (currentSortType.value === SortType.NONE) {
+    console.log("currentSortType.value === SortType.NONE");
+    console.log(currentEmployeeList);
+    return currentEmployeeList;
+  }
+  switch (currentSortType.value) {
+    case SortType.NAME:
+      return currentEmployeeList.sort((a, b) =>
+        currentSort.value === Sort.ASC
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name),
+      );
+    case SortType.STATUS:
+      return currentEmployeeList.sort((a, b) =>
+        currentSort.value === Sort.ASC
+          ? a.status.localeCompare(b.status)
+          : b.status.localeCompare(a.status),
+      );
+    case SortType.HOURS:
+      return currentEmployeeList.sort((a, b) =>
+        currentSort.value === Sort.ASC
+          ? a.hoursPerWeek - b.hoursPerWeek
+          : b.hoursPerWeek - a.hoursPerWeek,
+      );
+  }
+});
 
 const openEditForm = ref(false);
 const employeeToEdit = ref<Employee>();
@@ -105,6 +235,15 @@ watch(openEditForm, (v) => {
     employeeToEdit.value = undefined;
   }
 });
+watch(
+  () => currentFilter.value.length,
+  (v) => {
+    console.log(v);
+    if (v === 0) {
+      currentFilterType.value = FilterType.NONE;
+    }
+  },
+);
 </script>
 
 <style scoped>

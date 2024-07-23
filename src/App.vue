@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import Toaster from "@/components/ui/toast/Toaster.vue";
+import { Toaster } from "@/components/ui/toast";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   NavigationMenu,

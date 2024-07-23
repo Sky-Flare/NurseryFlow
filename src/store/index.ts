@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
-export enum StatusEmployee {
+export enum StatusEmployeeOrChild {
   SICK = "sick",
   VACATION = "vacation",
   WORKING = "working",
@@ -11,7 +11,7 @@ export type Employee = {
   name: string;
   hoursPerWeek: number;
   daysOff: string[];
-  status: StatusEmployee;
+  status: StatusEmployeeOrChild;
 };
 export type Days =
   | "Monday"
@@ -45,28 +45,28 @@ export const useStore = defineStore("main", () => {
       hoursPerWeek: 28,
       daysOff: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
       id: 1721388146335,
-      status: StatusEmployee.WORKING,
+      status: StatusEmployeeOrChild.WORKING,
     },
     {
       name: "fanny",
       hoursPerWeek: 35,
       daysOff: [],
       id: 1,
-      status: StatusEmployee.WORKING,
+      status: StatusEmployeeOrChild.WORKING,
     },
     {
       name: "roxanne",
       hoursPerWeek: 35,
       daysOff: [],
       id: 2,
-      status: StatusEmployee.WORKING,
+      status: StatusEmployeeOrChild.WORKING,
     },
     {
       name: "anne",
       hoursPerWeek: 35,
       daysOff: [],
       id: 3,
-      status: StatusEmployee.WORKING,
+      status: StatusEmployeeOrChild.WORKING,
     },
   ]);
 
@@ -85,13 +85,13 @@ export const useStore = defineStore("main", () => {
     employees.value.push(employee);
   }
 
-  function getStatusEmployee(status: StatusEmployee) {
+  function getStatusEmployee(status: StatusEmployeeOrChild) {
     switch (status) {
-      case StatusEmployee.SICK:
+      case StatusEmployeeOrChild.SICK:
         return { label: "Malade", icon: "🤒️" };
-      case StatusEmployee.WORKING:
+      case StatusEmployeeOrChild.WORKING:
         return { label: "Travail", icon: "💼‍️" };
-      case StatusEmployee.VACATION:
+      case StatusEmployeeOrChild.VACATION:
         return { label: "Vacances", icon: "🏝️" };
       default:
         return "";

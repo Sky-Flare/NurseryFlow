@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
+import { StatusEmployeeOrChild } from "@/store/index";
 
 export interface Employee {
   name: string;
@@ -17,12 +18,13 @@ export type Days =
 
 export type HoursArray = { start: string; end: string; total: number };
 
-export interface Child {
+export type Child = {
   id: number;
   name: string;
   hours: Record<Days, HoursArray>;
   total: number;
-}
+  status: StatusEmployeeOrChild;
+};
 interface State {
   employees: Employee[];
   childrenPerHour: number[][];
@@ -32,7 +34,7 @@ interface State {
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hoursPerDay = 9;
 
-export const useStore = defineStore("child", () => {
+export const useChildStore = defineStore("child", () => {
   const children = ref<Child[]>([]);
 
   function addChild(c: Omit<Child, "id">) {
@@ -45,9 +47,23 @@ export const useStore = defineStore("child", () => {
     children.value[index] = e;
   }
 
+  function getStatusChild(status: StatusEmployeeOrChild) {
+    switch (status) {
+      case StatusEmployeeOrChild.SICK:
+        return { label: "Malade", icon: "🤒️" };
+      case StatusEmployeeOrChild.WORKING:
+        return { label: "Créche", icon: "🚼️" };
+      case StatusEmployeeOrChild.VACATION:
+        return { label: "Vacances", icon: "🏝️" };
+      default:
+        return "";
+    }
+  }
+
   return {
     children,
     addChild,
     updateChild,
+    getStatusChild,
   };
 });
