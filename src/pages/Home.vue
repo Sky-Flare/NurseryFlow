@@ -10,8 +10,11 @@ const { schedule, getTimeSlot } = useScheduleStore();
 const { onDrop, onLeave } = useDragAndDrop();
 </script>
 <template>
-  <div class="flex flex-col gap-[70px] pt-12">
-    <div class="flex" v-for="(currentDay, key) in schedule">
+  <div class="flex flex-col gap-[70px] pt-12 justify-center">
+    <div
+      class="flex items-center justify-center"
+      v-for="(currentDay, key) in schedule"
+    >
       <div class="pr-8">{{ key }}</div>
 
       <div class="flex w-full max-w-[1000px]">
@@ -32,8 +35,8 @@ const { onDrop, onLeave } = useDragAndDrop();
 
           <template v-for="(dayEmployee, indexE) in currentDay.employee">
             <cell-employee
-              v-for="timeEmployee in dayEmployee.hours"
-              :key="timeEmployee.id"
+              v-for="(timeEmployee, index) in dayEmployee.hours"
+              :key="index"
               :current-time="currentTime"
               :time-employee="timeEmployee"
               :day-employee="dayEmployee"

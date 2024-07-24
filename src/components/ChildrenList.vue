@@ -93,13 +93,18 @@
               </div>
             </div>
             <div>
-              <div v-for="(item, key) in child.hours">
+              <div class="flex items-start" v-for="(item, key) in child.hours">
                 {{ item.start }} - {{ item.end }}
               </div>
             </div>
             <div>
-              <div v-for="(item, key) in child.hours">
-                Total : {{ totalHoursPerDays(item.start, item.end) }} heures
+              <div class="flex items-start" v-for="(item, key) in child.hours">
+                Total :
+                {{
+                  totalHoursPerDays(item.start, item.end)
+                    ? totalHoursPerDays(item.start, item.end) + " h"
+                    : "0"
+                }}
               </div>
             </div>
           </TableCell>
