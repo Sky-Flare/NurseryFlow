@@ -133,7 +133,11 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { Employee, StatusEmployeeOrChild, useStore } from "../store/index";
+import {
+  Employee,
+  StatusEmployeeOrChild,
+  useEmployeeStore,
+} from "../store/index";
 import {
   Card,
   CardContent,
@@ -162,7 +166,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Input from "@/components/ui/input/Input.vue";
-const { getStatusEmployee, removeEmployee, employees } = useStore();
+const { getStatusEmployee, removeEmployee, employees } = useEmployeeStore();
 
 enum SortType {
   NAME = "name",

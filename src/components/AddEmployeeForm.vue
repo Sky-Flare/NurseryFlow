@@ -2,7 +2,7 @@
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { Employee, StatusEmployeeOrChild, useStore } from "@/store";
+import { Employee, StatusEmployeeOrChild, useEmployeeStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -38,7 +38,7 @@ const props = defineProps<{
 }>();
 const open = defineModel<boolean>("open");
 const { toast } = useToast();
-const { getStatusEmployee, updateEmployee, addEmployee } = useStore();
+const { getStatusEmployee, updateEmployee, addEmployee } = useEmployeeStore();
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
 const formSchema = toTypedSchema(

@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { useScheduleStore } from "@/store/scheduleStore";
-import { ArrayElement } from "@/store/index";
+import { ArrayElement, Days } from "@/store/index";
+import { computed } from "vue/dist/vue";
 
 export const currentDrag = ref<{
   itemID: string;
@@ -22,6 +23,9 @@ export const useDragAndDrop = () => {
   function onLeave(event: DragEvent) {
     event.stopPropagation();
     event.preventDefault();
+    if (!currentDrag.value) {
+      return;
+    }
     clearInterval(interval.value);
     // if (!evt.dataTransfer) {
     //   return;
@@ -36,7 +40,7 @@ export const useDragAndDrop = () => {
         (el) => el.name === itemID,
       );
       const currentTime = currentItem.hours.find(
-        (c) => c.id === parseInt(currentDrag.value?.hourId),
+        (c) => c.id === parseInt(currentDrag.value?.hourId ?? ""),
       );
       currentTime.start = new Date(start);
 
@@ -45,6 +49,9 @@ export const useDragAndDrop = () => {
     }, 300);
   }
 
+  function totalHours(start: Date, end: Date) {
+    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  }
   function onDrop(evt: DragEvent, currentTime: Date, drop = false) {
     if (!currentDrag.value) {
       evt.preventDefault();
@@ -62,11 +69,9 @@ export const useDragAndDrop = () => {
     const isEnd = currentDrag.value.isEnd;
     const currentDate = currentDrag.value.currentDate;
     const hourId = currentDrag.value.hourId;
-    console.log(itemID, start, hourId, day);
     const currentEmployee = schedule[day]?.employee?.find(
       (el: ArrayElement<typeof schedule.Monday.employee>) => el.name === itemID,
     ) as ArrayElement<typeof schedule.Monday.employee>;
-    console.log("currentEmployee", currentEmployee);
     const currentHour = currentEmployee.hours.find(
       (cE) => cE.id === parseInt(hourId),
     );
@@ -80,7 +85,6 @@ export const useDragAndDrop = () => {
     );
 
     if (isStart === "true") {
-      console.log('isStart === "true"');
       //prevent change same hour
       if (
         newCurrentTime.getTime() >=
@@ -90,9 +94,11 @@ export const useDragAndDrop = () => {
         currentHour.end = new Date(
           new Date(newCurrentTime).getTime() + 30 * 60000,
         );
+        currentHour.total = totalHours(currentHour.start, currentHour.end);
         return;
       }
       //prevent change other hours
+      let elToDelete: typeof currentEmployee.hours = [];
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))
         .forEach((el) => {
@@ -100,10 +106,22 @@ export const useDragAndDrop = () => {
             newCurrentTime.getTime() < el.end.getTime() + 30 * 60000 &&
             newCurrentTime.getTime() > el.start.getTime()
           ) {
-            el.end = newCurrentTime;
+            elToDelete.push(el);
           }
         });
+      if (elToDelete.length > 0) {
+        currentEmployee.hours = currentEmployee.hours.filter((el) => {
+          return !elToDelete.includes(el);
+        });
+        currentHour.id =
+          elToDelete[0].id < currentHour.id ? elToDelete[0].id : currentHour.id;
+        currentHour.start = elToDelete[0].start;
+        currentHour.total = totalHours(currentHour.start, currentHour.end);
+        currentDrag.value = undefined;
+        return;
+      }
       currentHour.start = newCurrentTime;
+      currentHour.total = totalHours(currentHour.start, currentHour.end);
     } else if (isEnd === "true") {
       //prevent change same hour
       if (
@@ -111,9 +129,12 @@ export const useDragAndDrop = () => {
       ) {
         currentHour.start = new Date(newCurrentTime.getTime() - 30 * 60000);
         currentHour.end = newCurrentTime;
+        currentHour.total = totalHours(currentHour.start, currentHour.end);
         return;
       }
       //prevent change other hours
+      let elToDelete: typeof currentEmployee.hours = [];
+
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))
         .forEach((el) => {
@@ -121,15 +142,31 @@ export const useDragAndDrop = () => {
             newCurrentTime.getTime() > el.start.getTime() - 30 * 60000 &&
             newCurrentTime.getTime() < el.end.getTime()
           ) {
-            el.start = new Date(new Date(currentHour.end).getTime());
+            elToDelete.push(el);
           }
         });
+      if (elToDelete.length > 0) {
+        currentEmployee.hours = currentEmployee.hours.filter((el) => {
+          return !elToDelete.includes(el);
+        });
+        currentHour.id =
+          elToDelete[0].id < currentHour.id ? elToDelete[0].id : currentHour.id;
+        currentHour.end = elToDelete[0].end;
+        currentDrag.value = undefined;
+        currentHour.total = totalHours(currentHour.start, currentHour.end);
+
+        return;
+      }
+      currentHour.total = totalHours(currentHour.start, currentHour.end);
+
       currentHour.end = new Date(newCurrentTime.getTime() + 30 * 60000);
     } else {
       const diffHours =
         new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();
       const newStart = new Date(new Date(start).getTime() - diffHours);
       const newEnd = new Date(new Date(end).getTime() - diffHours);
+      let elToDelete: typeof currentEmployee.hours = [];
+
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))
         .forEach((el) => {
@@ -139,7 +176,7 @@ export const useDragAndDrop = () => {
               newStart.getTime() <= el.end.getTime() &&
               newStart.getTime() > el.start.getTime()
             ) {
-              el.end = newStart;
+              elToDelete.push(el);
             }
             // if slide to the right (hours increase)
           } else if (diffHours < 0) {
@@ -147,10 +184,24 @@ export const useDragAndDrop = () => {
               newEnd.getTime() >= el.start.getTime() + 30 * 60000 &&
               newEnd.getTime() < el.end.getTime()
             ) {
-              el.start = new Date(newEnd.getTime());
+              elToDelete.push(el);
             }
           }
         });
+      if (elToDelete.length > 0) {
+        currentEmployee.hours = currentEmployee.hours.filter((el) => {
+          return !elToDelete.includes(el);
+        });
+        currentHour.id =
+          elToDelete[0].id < currentHour.id ? elToDelete[0].id : currentHour.id;
+        currentHour.start = diffHours > 0 ? elToDelete[0].start : newStart;
+        currentHour.end = diffHours < 0 ? elToDelete[0].end : newEnd;
+        currentDrag.value = undefined;
+        currentHour.total = totalHours(currentHour.start, currentHour.end);
+
+        return;
+      }
+      currentHour.total = totalHours(currentHour.start, currentHour.end);
 
       currentHour.start = newStart;
       currentHour.end = newEnd;

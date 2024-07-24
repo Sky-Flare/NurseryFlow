@@ -38,11 +38,11 @@ interface State {
 const days: Days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hoursPerDay = 9;
 
-export const useStore = defineStore("main", () => {
+export const useEmployeeStore = defineStore("employee", () => {
   const employees = ref<Employee[]>([
     {
       name: "marine",
-      hoursPerWeek: 28,
+      hoursPerWeek: 10,
       daysOff: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
       id: 1721388146335,
       status: StatusEmployeeOrChild.WORKING,

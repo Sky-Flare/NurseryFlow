@@ -177,10 +177,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AddEmployeeForm from "@/components/AddEmployeeForm.vue";
-import { StatusEmployeeOrChild, useStore } from "@/store";
+import { StatusEmployeeOrChild, useEmployeeStore } from "@/store";
 import { Child, useChildStore } from "@/store/childStore";
 import Input from "@/components/ui/input/Input.vue";
-const { updateEmployee, addEmployee } = useStore();
+const { updateEmployee, addEmployee } = useEmployeeStore();
 const { children, getStatusChild } = useChildStore();
 
 enum SortType {
@@ -241,7 +241,7 @@ const childrenFiltered = computed(() => {
       );
   }
 });
-const store = useStore();
+const store = useEmployeeStore();
 const openEditForm = ref(false);
 const childToEdit = ref<Child>();
 watch(openEditForm, (v) => {

@@ -18,7 +18,7 @@
                 <div v-if="getEmployeesForDayHour(day, hour).length > 0">
                   <div
                     v-for="employee in getEmployeesForDayHour(day, hour).sort(
-                      (a, b) => a.name.localeCompare(b.name)
+                      (a, b) => a.name.localeCompare(b.name),
                     )"
                     :key="employee?.name"
                   >
@@ -39,9 +39,9 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useStore } from "../store/index";
+import { useEmployeeStore } from "../store/index";
 
-const store = useStore();
+const store = useEmployeeStore();
 const employees = computed(() => store.employees);
 const schedule = computed(() => store.schedule);
 

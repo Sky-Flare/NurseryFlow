@@ -19,15 +19,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from "../store/index";
+import { useEmployeeStore } from "../store/index";
 import { ref } from "vue";
 
-const store = useStore();
+const store = useEmployeeStore();
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hours = Array.from({ length: 11 }, (_, i) => i);
 
 const children = ref(
-  Array.from({ length: days.length }, () => Array(hours.length).fill(0))
+  Array.from({ length: days.length }, () => Array(hours.length).fill(0)),
 );
 
 const submitChildren = () => {

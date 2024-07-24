@@ -15,7 +15,14 @@ export const useScheduleStore = defineStore("schedule", () => {
             {
               id: 1,
               start: new Date("August 15, 2024 07:30:00"),
-              end: new Date("August 15, 2024 16:30:00"),
+              end: new Date("August 15, 2024 12:30:00"),
+              total: 5,
+            },
+            {
+              id: 2,
+              start: new Date("August 15, 2024 14:30:00"),
+              end: new Date("August 15, 2024 18:30:00"),
+              total: 4,
             },
           ],
         },
@@ -26,6 +33,7 @@ export const useScheduleStore = defineStore("schedule", () => {
               id: 1,
               start: new Date("August 15, 2024 10:00:00"),
               end: new Date("August 15, 2024 15:30:00"),
+              total: 5.5,
             },
           ],
         },
@@ -63,6 +71,7 @@ export const useScheduleStore = defineStore("schedule", () => {
               id: 1,
               start: new Date("August 16, 2024 07:30:00"),
               end: new Date("August 16, 2024 12:00:00"),
+              total: 4.5,
             },
           ],
         },
@@ -73,6 +82,154 @@ export const useScheduleStore = defineStore("schedule", () => {
               id: 1,
               start: new Date("August 16, 2024 12:00:00"),
               end: new Date("August 16, 2024 17:30:00"),
+              total: 5.5,
+            },
+          ],
+        },
+      ],
+      childs: [
+        {
+          number: 3,
+          start: new Date("August 16, 2024 07:30:00"),
+          end: new Date("August 16, 2024 10:30:00"),
+        },
+        {
+          number: 7,
+          start: new Date("August 16, 2024 10:30:00"),
+          end: new Date("August 16, 2024 12:30:00"),
+        },
+        {
+          number: 8,
+          start: new Date("August 16, 2024 12:30:00"),
+          end: new Date("August 16, 2024 16:30:00"),
+        },
+        {
+          number: 4,
+          start: new Date("August 16, 2024 16:30:00"),
+          end: new Date("August 16, 2024 18:30:00"),
+        },
+      ],
+    },
+    Wednesday: {
+      date: new Date(`August 16, 2024 7:30:00`),
+      employee: [
+        {
+          name: "marine",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 07:30:00"),
+              end: new Date("August 16, 2024 12:00:00"),
+              total: 4.5,
+            },
+          ],
+        },
+        {
+          name: "fanny",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 12:00:00"),
+              end: new Date("August 16, 2024 17:30:00"),
+              total: 5.5,
+            },
+          ],
+        },
+      ],
+      childs: [
+        {
+          number: 3,
+          start: new Date("August 16, 2024 07:30:00"),
+          end: new Date("August 16, 2024 10:30:00"),
+        },
+        {
+          number: 7,
+          start: new Date("August 16, 2024 10:30:00"),
+          end: new Date("August 16, 2024 12:30:00"),
+        },
+        {
+          number: 8,
+          start: new Date("August 16, 2024 12:30:00"),
+          end: new Date("August 16, 2024 16:30:00"),
+        },
+        {
+          number: 4,
+          start: new Date("August 16, 2024 16:30:00"),
+          end: new Date("August 16, 2024 18:30:00"),
+        },
+      ],
+    },
+    Thursday: {
+      date: new Date(`August 16, 2024 7:30:00`),
+      employee: [
+        {
+          name: "marine",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 07:30:00"),
+              end: new Date("August 16, 2024 12:00:00"),
+              total: 4.5,
+            },
+          ],
+        },
+        {
+          name: "fanny",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 12:00:00"),
+              end: new Date("August 16, 2024 17:30:00"),
+              total: 5.5,
+            },
+          ],
+        },
+      ],
+      childs: [
+        {
+          number: 3,
+          start: new Date("August 16, 2024 07:30:00"),
+          end: new Date("August 16, 2024 10:30:00"),
+        },
+        {
+          number: 7,
+          start: new Date("August 16, 2024 10:30:00"),
+          end: new Date("August 16, 2024 12:30:00"),
+        },
+        {
+          number: 8,
+          start: new Date("August 16, 2024 12:30:00"),
+          end: new Date("August 16, 2024 16:30:00"),
+        },
+        {
+          number: 4,
+          start: new Date("August 16, 2024 16:30:00"),
+          end: new Date("August 16, 2024 18:30:00"),
+        },
+      ],
+    },
+    Friday: {
+      date: new Date(`August 16, 2024 7:30:00`),
+      employee: [
+        {
+          name: "marine",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 07:30:00"),
+              end: new Date("August 16, 2024 12:00:00"),
+              total: 4.5,
+            },
+          ],
+        },
+        {
+          name: "fanny",
+          hours: [
+            {
+              id: 1,
+              start: new Date("August 16, 2024 12:00:00"),
+              end: new Date("August 16, 2024 17:30:00"),
+              total: 5.5,
             },
           ],
         },

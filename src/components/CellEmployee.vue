@@ -1,5 +1,10 @@
 <template>
   <div
+    v-if="
+      isDateBetween.active ||
+      (firstHours && isDateBetwennOtherHours === 0) ||
+      (!sameEmploye && indexEmployee !== 0)
+    "
     class="w-full h-[24px] relative overflow-visible"
     @dragstart="startDrag"
     :draggable="isDateBetween.active"
@@ -28,10 +33,10 @@
     ]"
   >
     <div
-      class="capitalize pl-2 absolute left-0 z-[1] text-white"
+      class="capitalize w-max pl-2 absolute left-0 z-[1] text-white"
       v-if="isDateBetween.start"
     >
-      {{ dayEmployee.name }}
+      {{ dayEmployee.name }} {{ timeEmployee.total }}
     </div>
   </div>
 </template>
@@ -49,9 +54,13 @@ const props = defineProps<{
     id: number;
     start: Date;
     end: Date;
+    total: number;
   };
   dayEmployee: ArrayElement<typeof schedule.Monday.employee>;
   day: Days;
+  firstHours: boolean;
+  sameEmploye: boolean;
+  indexEmployee: number;
 }>();
 
 const isDateBetween = computed(() => {
@@ -64,6 +73,23 @@ const isDateBetween = computed(() => {
       props.currentTime >= props.timeEmployee.start &&
       props.currentTime < props.timeEmployee.end,
   };
+});
+const isDateBetwennOtherHours = computed(() => {
+  if (!props.firstHours) return 0;
+  const otherHours = props.dayEmployee.hours.filter(
+    (hour) => hour.id !== props.timeEmployee.id,
+  );
+  let s = 0;
+  otherHours.forEach((h) => {
+    if (
+      props.currentTime >= h.start &&
+      props.currentTime < h.end &&
+      h.id !== props.timeEmployee.id
+    ) {
+      s++;
+    }
+  });
+  return s;
 });
 
 function startDrag() {
