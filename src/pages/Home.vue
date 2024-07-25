@@ -45,7 +45,11 @@ const employeeSelected = ref<Employee>();
             <time-bar :current-time="currentTime" :index-time="indexTime" />
 
             <template v-for="timeChild in currentDay.childs">
-              <cell-child :current-time="currentTime" :time-child="timeChild" />
+              <cell-child
+                :day-employees="currentDay.employee"
+                :current-time="currentTime"
+                :time-child="timeChild"
+              />
             </template>
             <template v-for="(dayEmployee, indexE) in currentDay.employee">
               <cell-employee
