@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+const employeeSelected = defineModel("employeeSelected");
 import { computed } from "vue";
 import { useScheduleStore } from "@/store/scheduleStore";
 import { Employee, useEmployeeStore } from "@/store";
@@ -49,12 +50,17 @@ const totalHoursPerWeek = computed(() => {
 </script>
 
 <template>
-  <div class="sticky w-[280px] top-0 right-0 h-[200px]">
+  <div class="sticky w-[350px] top-0 right-0 h-[200px]">
     <Table>
       <TableCaption>Total semaine</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead class="w-[100px]">Nom</TableHead>
+          <TableHead
+            class="cursor-pointer"
+            @click.stop.prevent="employeeSelected = undefined"
+            >🔦</TableHead
+          >
+          <TableHead>Nom</TableHead>
           <TableHead>Base</TableHead>
           <TableHead>Current</TableHead>
           <TableHead>Diff</TableHead>
@@ -69,7 +75,14 @@ const totalHoursPerWeek = computed(() => {
           "
           class="cursor-alias"
         >
-          <TableCell class="capitalize font-medium">{{ r.name }}</TableCell>
+          <TableCell
+            class="cursor-pointer"
+            @click.stop.prevent="
+              employeeSelected = employeeSelected === r.id ? undefined : r.id
+            "
+            >{{ employeeSelected === r.id ? "💡" : "" }}</TableCell
+          >
+          <TableCell class="capitalize">{{ r.name }}</TableCell>
           <TableCell class="text-center">{{ r.hoursPerWeek }} </TableCell>
           <TableCell class="text-center">
             {{ r.totalHoursPerWeek }}

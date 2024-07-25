@@ -15,7 +15,9 @@
     "
     :class="[
       {
-        'bg-red-400': isDateBetween.active,
+        'bg-red-400':
+          isDateBetween.active &&
+          (!employeeSelected || employeeSelected === dayEmployee.id),
       },
       {
         'rounded-l-[8px]': isDateBetween.start,
@@ -61,6 +63,7 @@ const props = defineProps<{
   firstHours: boolean;
   sameEmploye: boolean;
   indexEmployee: number;
+  employeeSelected: number;
 }>();
 
 const isDateBetween = computed(() => {

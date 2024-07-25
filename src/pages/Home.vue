@@ -20,7 +20,7 @@ import AddEmployeeSchedule from "@/components/AddEmployeeSchedule.vue";
 const { schedule, getTimeSlot, addEmployeeOfOneDay } = useScheduleStore();
 const { onDrop, onLeave } = useDragAndDrop();
 
-const employeeSelected = ref<Employee>();
+const employeeSelected = ref<number>();
 </script>
 <template>
   <div class="relative flex justify-between gap-8">
@@ -61,6 +61,7 @@ const employeeSelected = ref<Employee>();
                 :day="key"
                 :first-hours="index === 0"
                 :index-employee="indexE"
+                :employee-selected="employeeSelected"
                 :same-employe="
                   dayEmployee.name === currentDay.employee?.[indexE + 1]?.name
                 "
@@ -71,6 +72,6 @@ const employeeSelected = ref<Employee>();
       </div>
     </div>
 
-    <table-hours-per-week />
+    <table-hours-per-week v-model:employee-selected="employeeSelected" />
   </div>
 </template>
