@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import TimeBar from "@/components/TimeBar.vue";
 import CellEmployee from "@/components/CellEmployee.vue";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useDragAndDrop } from "@/store/useDragAndDrop";
 import { useScheduleStore } from "@/store/scheduleStore";
 import CellChild from "@/components/CellChild.vue";
 import TableHoursPerWeek from "@/components/TableHoursPerWeek.vue";
-const { schedule, getTimeSlot } = useScheduleStore();
+
+import { computed, ref, watch } from "vue";
+import { Employee } from "@/store";
+import AddEmployeeSchedule from "@/components/AddEmployeeSchedule.vue";
+
+const { schedule, getTimeSlot, addEmployeeOfOneDay } = useScheduleStore();
 const { onDrop, onLeave } = useDragAndDrop();
+
+const employeeSelected = ref<Employee>();
 </script>
 <template>
   <div class="relative flex justify-between gap-8">
     <div class="w-full flex flex-col gap-[70px] pt-12 justify-center">
       <div class="flex items-center" v-for="(currentDay, key) in schedule">
-        <div class="pr-8">{{ key }}</div>
+        <div class="w-[140px]">{{ key }}</div>
 
         <div class="flex w-full max-w-[800px]">
           <div
@@ -25,6 +38,10 @@ const { onDrop, onLeave } = useDragAndDrop();
             @dragenter.prevent
             @dragleave.prevent="onLeave"
           >
+            <add-employee-schedule
+              v-if="indexTime === 0"
+              :date="currentDay.date"
+            />
             <time-bar :current-time="currentTime" :index-time="indexTime" />
 
             <template v-for="timeChild in currentDay.childs">

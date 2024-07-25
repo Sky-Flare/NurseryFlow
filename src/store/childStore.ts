@@ -7,14 +7,7 @@ export interface Employee {
   hoursPerWeek: number;
   daysOff: string[];
 }
-export type Days =
-  | "Monday"
-  | "Tuesday"
-  | "Wednesday"
-  | "Thursday"
-  | "Friday"
-  | "Saturday"
-  | "Sunday";
+export type Days = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday";
 
 export type HoursArray = { start: string; end: string; total: number };
 

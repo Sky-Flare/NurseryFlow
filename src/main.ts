@@ -19,6 +19,7 @@ import {
   faSortAlphaUp,
   faSortNumericAsc,
   faSortNumericUp,
+    faUserPlus
 } from "@fortawesome/free-solid-svg-icons";
 import EmployeeList from "./components/EmployeeList.vue";
 import Childrenlist from "./components/ChildrenList.vue";
@@ -32,6 +33,7 @@ library.add(
   faSortAlphaDesc,
   faSortNumericAsc,
   faSortNumericDesc,
+    faUserPlus
 );
 
 createApp(App).use(router).use(createPinia()).mount("#app");

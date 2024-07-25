@@ -1,13 +1,35 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { ArrayElement, StatusEmployeeOrChild } from "@/store/index";
+import {
+  ArrayElement,
+  StatusEmployeeOrChild,
+  useEmployeeStore,
+} from "@/store/index";
 import { schedule } from "@/store/drag";
 import { Days } from "@/store/childStore";
 
 export const useScheduleStore = defineStore("schedule", () => {
-  const schedule = ref({
+  const { employees } = useEmployeeStore();
+  const schedule = ref<
+    Record<
+      Partial<Days>,
+      {
+        date: Date;
+        employee: {
+          name: string;
+          id: number;
+          hours: { id: number; start: Date; end: Date; total: number }[];
+        }[];
+        childs: {
+          number: number;
+          start: Date;
+          end: Date;
+        }[];
+      }
+    >
+  >({
     Monday: {
-      date: new Date(`August 15, 2024 7:30:00`),
+      date: new Date(`August 12, 2024 7:30:00`),
       employee: [
         {
           name: "marine",
@@ -15,14 +37,14 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 15, 2024 07:30:00"),
-              end: new Date("August 15, 2024 12:30:00"),
+              start: new Date("August 12, 2024 07:30:00"),
+              end: new Date("August 12, 2024 12:30:00"),
               total: 5,
             },
             {
               id: 2,
-              start: new Date("August 15, 2024 14:30:00"),
-              end: new Date("August 15, 2024 18:30:00"),
+              start: new Date("August 12, 2024 14:30:00"),
+              end: new Date("August 12, 2024 18:30:00"),
               total: 4,
             },
           ],
@@ -33,8 +55,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 15, 2024 10:00:00"),
-              end: new Date("August 15, 2024 15:30:00"),
+              start: new Date("August 12, 2024 10:00:00"),
+              end: new Date("August 12, 2024 15:30:00"),
               total: 5.5,
             },
           ],
@@ -43,28 +65,28 @@ export const useScheduleStore = defineStore("schedule", () => {
       childs: [
         {
           number: 0,
-          start: new Date("August 15, 2024 07:30:00"),
-          end: new Date("August 15, 2024 09:30:00"),
+          start: new Date("August 12, 2024 07:30:00"),
+          end: new Date("August 12, 2024 09:30:00"),
         },
         {
           number: 4,
-          start: new Date("August 15, 2024 09:30:00"),
-          end: new Date("August 15, 2024 12:30:00"),
+          start: new Date("August 12, 2024 09:30:00"),
+          end: new Date("August 12, 2024 12:30:00"),
         },
         {
           number: 11,
-          start: new Date("August 15, 2024 12:30:00"),
-          end: new Date("August 15, 2024 17:30:00"),
+          start: new Date("August 12, 2024 12:30:00"),
+          end: new Date("August 12, 2024 17:30:00"),
         },
         {
           number: 6,
-          start: new Date("August 15, 2024 17:30:00"),
-          end: new Date("August 15, 2024 18:30:00"),
+          start: new Date("August 12, 2024 17:30:00"),
+          end: new Date("August 12, 2024 18:30:00"),
         },
       ],
     },
     Tuesday: {
-      date: new Date(`August 16, 2024 7:30:00`),
+      date: new Date(`August 13, 2024 7:30:00`),
       employee: [
         {
           name: "marine",
@@ -72,8 +94,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 07:30:00"),
-              end: new Date("August 16, 2024 12:00:00"),
+              start: new Date("August 13, 2024 07:30:00"),
+              end: new Date("August 13, 2024 12:00:00"),
               total: 4.5,
             },
           ],
@@ -84,8 +106,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 12:00:00"),
-              end: new Date("August 16, 2024 17:30:00"),
+              start: new Date("August 13, 2024 12:00:00"),
+              end: new Date("August 13, 2024 17:30:00"),
               total: 5.5,
             },
           ],
@@ -94,28 +116,28 @@ export const useScheduleStore = defineStore("schedule", () => {
       childs: [
         {
           number: 3,
-          start: new Date("August 16, 2024 07:30:00"),
-          end: new Date("August 16, 2024 10:30:00"),
+          start: new Date("August 13, 2024 07:30:00"),
+          end: new Date("August 13, 2024 10:30:00"),
         },
         {
           number: 7,
-          start: new Date("August 16, 2024 10:30:00"),
-          end: new Date("August 16, 2024 12:30:00"),
+          start: new Date("August 13, 2024 10:30:00"),
+          end: new Date("August 13, 2024 12:30:00"),
         },
         {
           number: 8,
-          start: new Date("August 16, 2024 12:30:00"),
-          end: new Date("August 16, 2024 16:30:00"),
+          start: new Date("August 13, 2024 12:30:00"),
+          end: new Date("August 13, 2024 16:30:00"),
         },
         {
           number: 4,
-          start: new Date("August 16, 2024 16:30:00"),
-          end: new Date("August 16, 2024 18:30:00"),
+          start: new Date("August 13, 2024 16:30:00"),
+          end: new Date("August 13, 2024 18:30:00"),
         },
       ],
     },
     Wednesday: {
-      date: new Date(`August 16, 2024 7:30:00`),
+      date: new Date(`August 14, 2024 7:30:00`),
       employee: [
         {
           name: "marine",
@@ -123,8 +145,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 07:30:00"),
-              end: new Date("August 16, 2024 12:00:00"),
+              start: new Date("August 14, 2024 07:30:00"),
+              end: new Date("August 14, 2024 12:00:00"),
               total: 4.5,
             },
           ],
@@ -135,8 +157,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 12:00:00"),
-              end: new Date("August 16, 2024 17:30:00"),
+              start: new Date("August 14, 2024 12:00:00"),
+              end: new Date("August 14, 2024 17:30:00"),
               total: 5.5,
             },
           ],
@@ -145,28 +167,28 @@ export const useScheduleStore = defineStore("schedule", () => {
       childs: [
         {
           number: 3,
-          start: new Date("August 16, 2024 07:30:00"),
-          end: new Date("August 16, 2024 10:30:00"),
+          start: new Date("August 14, 2024 07:30:00"),
+          end: new Date("August 14, 2024 10:30:00"),
         },
         {
           number: 7,
-          start: new Date("August 16, 2024 10:30:00"),
-          end: new Date("August 16, 2024 12:30:00"),
+          start: new Date("August 14, 2024 10:30:00"),
+          end: new Date("August 14, 2024 12:30:00"),
         },
         {
           number: 8,
-          start: new Date("August 16, 2024 12:30:00"),
-          end: new Date("August 16, 2024 16:30:00"),
+          start: new Date("August 14, 2024 12:30:00"),
+          end: new Date("August 14, 2024 16:30:00"),
         },
         {
           number: 4,
-          start: new Date("August 16, 2024 16:30:00"),
-          end: new Date("August 16, 2024 18:30:00"),
+          start: new Date("August 14, 2024 16:30:00"),
+          end: new Date("August 14, 2024 18:30:00"),
         },
       ],
     },
     Thursday: {
-      date: new Date(`August 16, 2024 7:30:00`),
+      date: new Date(`August 15, 2024 7:30:00`),
       employee: [
         {
           name: "marine",
@@ -174,8 +196,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 07:30:00"),
-              end: new Date("August 16, 2024 12:00:00"),
+              start: new Date("August 15, 2024 07:30:00"),
+              end: new Date("August 15, 2024 12:00:00"),
               total: 4.5,
             },
           ],
@@ -186,8 +208,8 @@ export const useScheduleStore = defineStore("schedule", () => {
           hours: [
             {
               id: 1,
-              start: new Date("August 16, 2024 12:00:00"),
-              end: new Date("August 16, 2024 17:30:00"),
+              start: new Date("August 15, 2024 12:00:00"),
+              end: new Date("August 15, 2024 17:30:00"),
               total: 5.5,
             },
           ],
@@ -196,23 +218,23 @@ export const useScheduleStore = defineStore("schedule", () => {
       childs: [
         {
           number: 3,
-          start: new Date("August 16, 2024 07:30:00"),
-          end: new Date("August 16, 2024 10:30:00"),
+          start: new Date("August 15, 2024 07:30:00"),
+          end: new Date("August 15, 2024 10:30:00"),
         },
         {
           number: 7,
-          start: new Date("August 16, 2024 10:30:00"),
-          end: new Date("August 16, 2024 12:30:00"),
+          start: new Date("August 15, 2024 10:30:00"),
+          end: new Date("August 15, 2024 12:30:00"),
         },
         {
           number: 8,
-          start: new Date("August 16, 2024 12:30:00"),
-          end: new Date("August 16, 2024 16:30:00"),
+          start: new Date("August 15, 2024 12:30:00"),
+          end: new Date("August 15, 2024 16:30:00"),
         },
         {
           number: 4,
-          start: new Date("August 16, 2024 16:30:00"),
-          end: new Date("August 16, 2024 18:30:00"),
+          start: new Date("August 15, 2024 16:30:00"),
+          end: new Date("August 15, 2024 18:30:00"),
         },
       ],
     },
@@ -275,7 +297,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     currentTime: number,
   ) {
     console.log(employee, day, currentTime);
-    const currentEmployee = schedule.value[day].employee.find(
+    const currentEmployee = schedule.value[day]?.employee.find(
       (el) => el.name === employee.name,
     );
     currentEmployee.hours.push({
@@ -285,8 +307,26 @@ export const useScheduleStore = defineStore("schedule", () => {
     });
   }
 
+  function addEmployeeOfOneDay(id: number, day: Days) {
+    const currentDay = schedule.value[day].date;
+    const employee = employees.find((el) => el.id === id);
+    const newHour = {
+      name: employee?.name,
+      id: employee?.id,
+      hours: [
+        {
+          id: 1,
+          start: currentDay,
+          end: new Date(currentDay.getTime() + 120 * 60000),
+          total: 2,
+        },
+      ],
+    };
+    schedule.value[day].employee.push(newHour);
+  }
+
   function deleteHour(day: Days, nameEmployee: string, hourId: number) {
-    const currentEmployee = schedule[day].employee.find(
+    const currentEmployee = schedule[day]?.employee.find(
       (el) => el.name === nameEmployee,
     );
     const curentHours = currentEmployee.hours.findIndex(
@@ -313,5 +353,6 @@ export const useScheduleStore = defineStore("schedule", () => {
     schedule,
     addHoursOfDay,
     getTimeSlot,
+    addEmployeeOfOneDay,
   };
 });
