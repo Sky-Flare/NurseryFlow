@@ -10,38 +10,42 @@ import {
 } from "@/components/ui/table";
 import { computed } from "vue";
 import { useScheduleStore } from "@/store/scheduleStore";
-import { useEmployeeStore } from "@/store";
+import { Employee, useEmployeeStore } from "@/store";
+import AddEmployeeForm from "@/components/AddEmployeeForm.vue";
+import { ref, watch } from "vue";
 const { employees } = useEmployeeStore();
 const { schedule } = useScheduleStore();
+const employeeToEdit = ref<Employee['id']>();
+const openEditForm = ref(false);
+watch(openEditForm, (v) => {
+  if (!v) {
+    employeeToEdit.value = undefined;
+  }
+});
+
 
 const totalHoursPerWeek = computed(() => {
-  return Object.values(schedule).reduce((acc: Record<string, number>, day) => {
-    console.log(acc);
-    day.employee.forEach((employee) => {
+  return Object.values(Object.values(schedule).reduce((acc, day) => {
+    day.employee.forEach(employee => {
       if (!acc[employee.name]) {
-        acc[employee.name] = 0;
+        const e = employees.find(e => e.id === employee.id);
+        acc[employee.name] = {
+          name: employee.name,
+          totalHoursPerWeek: 0,
+          ...e
+        };
       }
 
-      acc[employee.name] += employee.hours.reduce(
-        (sum, hour) => sum + hour.total,
-        0,
-      );
+      acc[employee.name].totalHoursPerWeek += employee.hours.reduce((sum, hour) => sum + hour.total, 0);
     });
 
     return acc;
-  }, {});
-});
-
-const result = computed(() => {
-  return Object.keys(totalHoursPerWeek.value).map((name) => ({
-    name,
-    totalHoursPerWeek: totalHoursPerWeek.value[name],
-  }));
+  }, {}));
 });
 </script>
 
 <template>
-  <div class="sticky top-0 right-0 h-[200px]">
+  <div class="sticky w-[210px] top-0 right-0 h-[200px]">
     <Table>
       <TableCaption>Total semaine</TableCaption>
       <TableHeader>
@@ -52,24 +56,24 @@ const result = computed(() => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="r in result">
+        <TableRow v-for="r in totalHoursPerWeek" @click="
+            employeeToEdit = r.id;
+            openEditForm = true;
+          ">
           <TableCell class="capitalize font-medium">{{ r.name }}</TableCell>
-          <TableCell class="text-center">{{ r.totalHoursPerWeek }} </TableCell>
-          <TableCell
-            :class="{
-              'text-red-500 ':
-                r.totalHoursPerWeek -
-                  employees.find((e) => e.name === r.name)?.hoursPerWeek ===
-                r.totalHoursPerWeek,
-            }"
-          >
-            {{
-              r.totalHoursPerWeek -
-              employees.find((e) => e.name === r.name)?.hoursPerWeek
-            }}
+          <TableCell class="text-center">{{ r.hoursPerWeek }} </TableCell>
+          <TableCell>
+              <span :class="r.totalHoursPerWeek - r?.hoursPerWeek === r?.hoursPerWeek  ? 'text-green-400' : 'text-red-400'">
+                 {{r.totalHoursPerWeek - r?.hoursPerWeek }}
+            </span>
           </TableCell>
         </TableRow>
       </TableBody>
     </Table>
   </div>
+  <add-employee-form
+    :key="employeeToEdit ?? openEditForm.toString()"
+    v-model:open="openEditForm"
+    :id-employee="employeeToEdit"
+  />
 </template>

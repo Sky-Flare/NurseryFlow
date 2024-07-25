@@ -11,6 +11,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       employee: [
         {
           name: "marine",
+          id: 1,
           hours: [
             {
               id: 1,
@@ -28,6 +29,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         },
         {
           name: "fanny",
+          id: 2,
           hours: [
             {
               id: 1,
@@ -66,6 +68,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       employee: [
         {
           name: "marine",
+          id: 1,
           hours: [
             {
               id: 1,
@@ -77,6 +80,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         },
         {
           name: "fanny",
+          id: 2,
           hours: [
             {
               id: 1,
@@ -115,6 +119,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       employee: [
         {
           name: "marine",
+          id: 1,
           hours: [
             {
               id: 1,
@@ -126,6 +131,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         },
         {
           name: "fanny",
+          id: 2,
           hours: [
             {
               id: 1,
@@ -164,6 +170,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       employee: [
         {
           name: "marine",
+          id: 1,
           hours: [
             {
               id: 1,
@@ -175,6 +182,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         },
         {
           name: "fanny",
+          id: 2,
           hours: [
             {
               id: 1,
@@ -213,6 +221,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       employee: [
         {
           name: "marine",
+          id: 1,
           hours: [
             {
               id: 1,
@@ -224,6 +233,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         },
         {
           name: "fanny",
+          id: 2,
           hours: [
             {
               id: 1,

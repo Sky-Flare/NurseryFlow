@@ -77,10 +77,10 @@
       <TableBody>
         <TableRow
           v-for="employee in employeesFiltered"
-          :key="employee.name"
+          :key="employee.id"
           class="cursor-pointer hover:bg-accent"
           @click="
-            employeeToEdit = employee;
+            employeeToEdit = employee.id;
             openEditForm = true;
           "
         >
@@ -124,9 +124,9 @@
   </div>
   <div class="flex gap-2 flex-wrap">
     <add-employee-form
-      :key="employeeToEdit?.id ?? openEditForm.toString()"
+      :key="employeeToEdit ?? openEditForm.toString()"
       v-model:open="openEditForm"
-      :edit="employeeToEdit"
+      :id-employee="employeeToEdit"
     />
   </div>
 </template>
@@ -233,7 +233,7 @@ const employeesFiltered = computed(() => {
 });
 
 const openEditForm = ref(false);
-const employeeToEdit = ref<Employee>();
+const employeeToEdit = ref<Employee['id']>();
 watch(openEditForm, (v) => {
   if (!v) {
     employeeToEdit.value = undefined;

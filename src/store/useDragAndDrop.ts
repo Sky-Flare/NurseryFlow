@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { useScheduleStore } from "@/store/scheduleStore";
 import { ArrayElement, Days } from "@/store/index";
-import { computed } from "vue/dist/vue";
+import { computed } from "vue";
 
 export const currentDrag = ref<{
   itemID: string;

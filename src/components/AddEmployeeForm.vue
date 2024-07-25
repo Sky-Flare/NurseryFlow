@@ -32,13 +32,14 @@ import {
 } from "@/components/ui/select";
 import { getState } from "radix-vue/dist/Checkbox/utils";
 import { Days } from "@/store/childStore";
+import {computed} from "vue";
 
 const props = defineProps<{
-  edit?: Employee;
+  idEmployee?: number;
 }>();
 const open = defineModel<boolean>("open");
 const { toast } = useToast();
-const { getStatusEmployee, updateEmployee, addEmployee } = useEmployeeStore();
+const { getStatusEmployee, updateEmployee, addEmployee, employees } = useEmployeeStore();
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
 const formSchema = toTypedSchema(
@@ -49,14 +50,14 @@ const formSchema = toTypedSchema(
     status: z.nativeEnum(StatusEmployeeOrChild),
   }),
 );
-
+const currentEmployee = computed(() => employees.find((e) => e.id === props.idEmployee));
 const { handleSubmit } = useForm({
   validationSchema: formSchema,
   initialValues: {
-    username: props.edit?.name ?? "",
-    hours: props.edit?.hoursPerWeek ?? 35,
-    days: props.edit?.daysOff ?? [],
-    status: props.edit?.status ?? StatusEmployeeOrChild.WORKING,
+    username: currentEmployee.value?.name ?? "",
+    hours: currentEmployee.value?.hoursPerWeek ?? 35,
+    days: currentEmployee.value?.daysOff ?? [],
+    status: currentEmployee.value?.status ?? StatusEmployeeOrChild.WORKING,
   },
 });
 
@@ -71,12 +72,12 @@ const onSubmit = handleSubmit((values) => {
   const daysSentence = values.days.length
     ? ", et est en congé les " + values.days.join(", ")
     : "";
-  if (props.edit) {
+  if (props.idEmployee) {
     toast({
       title: "Employé modifié",
       description: `${values.username}, fait ${values.hours} heures ${daysSentence}`,
     });
-    updateEmployee({ ...employee, id: props.edit.id });
+    updateEmployee({ ...employee, id: props.idEmployee });
   } else {
     toast({
       title: "Employé ajouté",
@@ -92,7 +93,7 @@ const onSubmit = handleSubmit((values) => {
   <Sheet v-model:open="open" :default-open="true">
     <SheetContent>
       <SheetTitle>
-        {{ edit ? "Changement profil" : "Création du profil" }}
+        {{ idEmployee ? "Changement profil" : "Création du profil" }}
       </SheetTitle>
       <SheetHeader>
         <SheetDescription>
