@@ -59,6 +59,9 @@ export const useDragAndDrop = () => {
       return;
     }
 
+    if (currentTime.getDay() !== new Date(currentDrag.value.start).getDay()) {
+      return;
+    }
     clearInterval(interval.value);
 
     const itemID = currentDrag.value.itemID;
