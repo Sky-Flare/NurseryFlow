@@ -9,7 +9,6 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 /* import font awesome icon component */
 
 /* import specific icons */
-import { all as allRegular } from "@fortawesome/free-regular-svg-icons";
 import {
   faBaby,
   faPlus,

@@ -35,7 +35,7 @@ interface State {
   schedule: (Employee | null)[][][];
 }
 
-const days: Days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hoursPerDay = 9;
 
 export const useEmployeeStore = defineStore("employee", () => {
@@ -81,8 +81,7 @@ export const useEmployeeStore = defineStore("employee", () => {
 
   function addEmployee(employee: Omit<Employee, "id">) {
     console.log(employees.value);
-    employee.id = new Date().getTime();
-    employees.value.push(employee);
+    employees.value.push({ ...employee, id: new Date().getTime() });
   }
 
   function getStatusEmployee(status: StatusEmployeeOrChild) {

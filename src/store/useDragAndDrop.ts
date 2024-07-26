@@ -1,7 +1,8 @@
 import { ref } from "vue";
-import { useScheduleStore } from "@/store/scheduleStore";
+import { Hour, useScheduleStore } from "@/store/scheduleStore";
 import { ArrayElement, Days } from "@/store/index";
 import { computed } from "vue";
+import { storeToRefs } from "pinia";
 
 export const currentDrag = ref<{
   itemID: string;
@@ -16,7 +17,8 @@ export const currentDrag = ref<{
 }>();
 
 export const useDragAndDrop = () => {
-  const { schedule } = useScheduleStore();
+  const ScheduleStore = useScheduleStore();
+  const { schedule, employeeDisplay } = storeToRefs(ScheduleStore);
 
   const interval = ref();
 
@@ -27,24 +29,31 @@ export const useDragAndDrop = () => {
       return;
     }
     clearInterval(interval.value);
-    // if (!evt.dataTransfer) {
-    //   return;
-    // }
+
     const itemID = currentDrag.value.itemID;
     const start = currentDrag.value.start;
     const end = currentDrag.value.end;
-    const day = currentDrag.value.day;
+    const day = currentDrag.value.day as keyof typeof schedule.value;
     const isStart = currentDrag.value.isStart;
     interval.value = setTimeout(() => {
-      const currentItem = schedule[day]?.employee?.find(
-        (el) => el.name === itemID,
-      );
-      const currentTime = currentItem.hours.find(
+      let currentEmployee;
+      if (employeeDisplay.value) {
+        currentEmployee = schedule.value[day]?.employee?.find(
+          (el: Hour) => el.name === itemID,
+        ) as Hour;
+      } else {
+        currentEmployee = schedule.value[day]?.children?.find(
+          (el: Hour) => el.name === itemID,
+        ) as Hour;
+      }
+      const currentTime = currentEmployee.hours.find(
         (c) => c.id === parseInt(currentDrag.value?.hourId ?? ""),
       );
-      currentTime.start = new Date(start);
+      if (currentTime) {
+        currentTime.start = new Date(start);
+        currentTime.end = new Date(end);
+      }
 
-      currentTime.end = new Date(end);
       currentDrag.value = undefined;
     }, 300);
   }
@@ -67,14 +76,25 @@ export const useDragAndDrop = () => {
     const itemID = currentDrag.value.itemID;
     const start = currentDrag.value.start;
     const end = currentDrag.value.end;
-    const day = currentDrag.value.day;
+    const day = currentDrag.value.day as keyof typeof schedule.value;
     const isStart = currentDrag.value.isStart;
     const isEnd = currentDrag.value.isEnd;
     const currentDate = currentDrag.value.currentDate;
     const hourId = currentDrag.value.hourId;
-    const currentEmployee = schedule[day]?.employee?.find(
-      (el: ArrayElement<typeof schedule.Monday.employee>) => el.name === itemID,
-    ) as ArrayElement<typeof schedule.Monday.employee>;
+
+    let currentEmployee;
+
+    if (employeeDisplay.value) {
+      currentEmployee = schedule.value[day]?.employee?.find(
+        (el: Hour) => el.name === itemID,
+      ) as Hour;
+    } else {
+      console.log(schedule.value[day]?.children);
+      console.log(itemID);
+      currentEmployee = schedule.value[day]?.children?.find(
+        (el: Hour) => el.name === itemID,
+      ) as Hour;
+    }
     const currentHour = currentEmployee.hours.find(
       (cE) => cE.id === parseInt(hourId),
     );
@@ -101,7 +121,7 @@ export const useDragAndDrop = () => {
         return;
       }
       //prevent change other hours
-      let elToDelete: typeof currentEmployee.hours = [];
+      let elToDelete: Hour["hours"] = [];
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))
         .forEach((el) => {
@@ -136,7 +156,7 @@ export const useDragAndDrop = () => {
         return;
       }
       //prevent change other hours
-      let elToDelete: typeof currentEmployee.hours = [];
+      let elToDelete: Hour["hours"] = [];
 
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))
@@ -168,7 +188,7 @@ export const useDragAndDrop = () => {
         new Date(currentDate).getTime() - new Date(newCurrentTime).getTime();
       const newStart = new Date(new Date(start).getTime() - diffHours);
       const newEnd = new Date(new Date(end).getTime() - diffHours);
-      let elToDelete: typeof currentEmployee.hours = [];
+      let elToDelete: Hour["hours"] = [];
 
       currentEmployee.hours
         .filter((h) => h.id !== parseInt(hourId))

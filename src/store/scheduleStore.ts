@@ -460,6 +460,9 @@ export const useScheduleStore = defineStore("schedule", () => {
     const curentHours = currentEmployee?.hours.findIndex(
       (el) => el.id === hourId,
     );
+    if (!curentHours) {
+      return;
+    }
     currentEmployee?.hours.splice(curentHours, 1);
   }
 
