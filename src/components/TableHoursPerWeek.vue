@@ -14,8 +14,10 @@ import { useScheduleStore } from "@/store/scheduleStore";
 import { Employee, useEmployeeStore } from "@/store";
 import AddEmployeeForm from "@/components/AddEmployeeForm.vue";
 import { ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 const { employees } = useEmployeeStore();
-const { schedule } = useScheduleStore();
+const scheduleStore = useScheduleStore();
+const { schedule } = storeToRefs(scheduleStore);
 const employeeToEdit = ref<Employee["id"]>();
 const openEditForm = ref(false);
 watch(openEditForm, (v) => {
@@ -26,7 +28,7 @@ watch(openEditForm, (v) => {
 
 const totalHoursPerWeek = computed(() => {
   return Object.values(
-    Object.values(schedule).reduce((acc, day) => {
+    Object.values(schedule.value).reduce((acc, day) => {
       day.employee.forEach((employee) => {
         if (!acc[employee.name]) {
           const e = employees.find((e) => e.id === employee.id);

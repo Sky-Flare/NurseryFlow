@@ -10,7 +10,12 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 
 /* import specific icons */
 import { all as allRegular } from "@fortawesome/free-regular-svg-icons";
-import { faPlus, faSortNumericDesc } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBaby,
+  faPlus,
+  faSortNumericDesc,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   faCircleHalfStroke,
   faSortAlphaAsc,
@@ -19,7 +24,7 @@ import {
   faSortAlphaUp,
   faSortNumericAsc,
   faSortNumericUp,
-    faUserPlus
+  faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import EmployeeList from "./components/EmployeeList.vue";
 import Childrenlist from "./components/ChildrenList.vue";
@@ -33,7 +38,9 @@ library.add(
   faSortAlphaDesc,
   faSortNumericAsc,
   faSortNumericDesc,
-    faUserPlus
+  faUserPlus,
+  faBaby,
+  faUser,
 );
 
 createApp(App).use(router).use(createPinia()).mount("#app");

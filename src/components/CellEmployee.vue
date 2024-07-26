@@ -45,25 +45,20 @@
 <script lang="ts" setup>
 import { ArrayElement, Days } from "@/store";
 import { computed } from "vue";
-import { useScheduleStore } from "@/store/scheduleStore";
+import { Hour, useScheduleStore } from "@/store/scheduleStore";
 import { currentDrag } from "@/store/useDragAndDrop";
 
 const { schedule, addHoursOfDay } = useScheduleStore();
 
 const props = defineProps<{
   currentTime: Date;
-  timeEmployee: {
-    id: number;
-    start: Date;
-    end: Date;
-    total: number;
-  };
-  dayEmployee: ArrayElement<typeof schedule.Monday.employee>;
+  timeEmployee: ArrayElement<Hour["hours"]>;
+  dayEmployee: Hour;
   day: Days;
   firstHours: boolean;
   sameEmploye: boolean;
   indexEmployee: number;
-  employeeSelected: number;
+  employeeSelected?: number;
 }>();
 
 const isDateBetween = computed(() => {

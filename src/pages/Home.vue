@@ -12,66 +12,92 @@ import { useDragAndDrop } from "@/store/useDragAndDrop";
 import { useScheduleStore } from "@/store/scheduleStore";
 import CellChild from "@/components/CellChild.vue";
 import TableHoursPerWeek from "@/components/TableHoursPerWeek.vue";
+import { Button } from "@/components/ui/button";
 
 import { computed, ref, watch } from "vue";
 import { Employee } from "@/store";
 import AddEmployeeSchedule from "@/components/AddEmployeeSchedule.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { storeToRefs } from "pinia";
 
-const { schedule, getTimeSlot, addEmployeeOfOneDay } = useScheduleStore();
+const scheduleStore = useScheduleStore();
+const { employeeDisplay, schedule } = storeToRefs(scheduleStore);
 const { onDrop, onLeave } = useDragAndDrop();
 
 const employeeSelected = ref<number>();
 </script>
 <template>
-  <div class="relative flex justify-between gap-8">
-    <div class="w-full flex flex-col gap-[70px] pt-12 justify-center">
-      <div class="flex items-center" v-for="(currentDay, key) in schedule">
-        <div class="w-[140px]">{{ key }}</div>
+  <div v-if="schedule">
+    <div class="flex items-center justify-start text-xl gap-4">
+      <font-awesome-icon
+        v-for="icon in ['user', 'baby']"
+        class="cursor-pointer"
+        :class="
+          (!employeeDisplay && icon === 'baby') ||
+          (employeeDisplay && icon === 'user')
+            ? 'text-primary'
+            : 'text-gray-400'
+        "
+        @click="scheduleStore.toggleUserTypeDisplayed()"
+        :icon="['fas', icon]"
+      />
+    </div>
+    <div class="relative flex justify-between gap-8">
+      <div class="w-full flex flex-col gap-[70px] pt-12 justify-center">
+        <div class="flex items-center" v-for="(currentDay, key) in schedule">
+          <div class="w-[140px]">{{ key }}</div>
 
-        <div class="flex w-full max-w-[800px]">
-          <div
-            v-for="(currentTime, indexTime) in getTimeSlot(currentDay.date)"
-            class="w-[12%] flex flex-col gap-2 relative pt-2 group"
-            :data-date="currentTime"
-            @drop="onDrop($event, currentTime, true)"
-            @dragover.prevent="onDrop($event, currentTime)"
-            @dragenter.prevent
-            @dragleave.prevent="onLeave"
-          >
-            <add-employee-schedule
-              v-if="indexTime === 0"
-              :date="currentDay.date"
-            />
-            <time-bar :current-time="currentTime" :index-time="indexTime" />
+          <div class="flex w-full max-w-[800px]">
+            <div
+              v-for="(currentTime, indexTime) in scheduleStore.getTimeSlot(
+                currentDay.date,
+              )"
+              class="w-[12%] flex flex-col gap-2 relative pt-2 group"
+              :data-date="currentTime"
+              @drop="onDrop($event, currentTime, true)"
+              @dragover.prevent="onDrop($event, currentTime)"
+              @dragenter.prevent
+              @dragleave.prevent="onLeave"
+            >
+              <add-employee-schedule
+                v-if="indexTime === 0"
+                :date="currentDay.date"
+              />
+              <time-bar :current-time="currentTime" :index-time="indexTime" />
 
-            <template v-for="timeChild in currentDay.childs">
-              <cell-child
-                :day-employees="currentDay.employee"
-                :current-time="currentTime"
-                :time-child="timeChild"
-              />
-            </template>
-            <template v-for="(dayEmployee, indexE) in currentDay.employee">
-              <cell-employee
-                v-for="(timeEmployee, index) in dayEmployee.hours"
-                :key="dayEmployee.name + index"
-                :current-time="currentTime"
-                :time-employee="timeEmployee"
-                :day-employee="dayEmployee"
-                :day="key"
-                :first-hours="index === 0"
-                :index-employee="indexE"
-                :employee-selected="employeeSelected"
-                :same-employe="
-                  dayEmployee.name === currentDay.employee?.[indexE + 1]?.name
-                "
-              />
-            </template>
+              <template v-for="timeChild in currentDay.totalChildren">
+                <cell-child
+                  :day-employees="currentDay.employee"
+                  :current-time="currentTime"
+                  :time-child="timeChild"
+                />
+              </template>
+              <template
+                v-for="(dayEmployee, indexE) in employeeDisplay
+                  ? currentDay.employee
+                  : currentDay.children"
+              >
+                <cell-employee
+                  v-for="(timeEmployee, index) in dayEmployee.hours"
+                  :key="dayEmployee.name + index"
+                  :current-time="currentTime"
+                  :time-employee="timeEmployee"
+                  :day-employee="dayEmployee"
+                  :day="key"
+                  :first-hours="index === 0"
+                  :index-employee="indexE"
+                  :employee-selected="employeeSelected"
+                  :same-employe="
+                    dayEmployee.name === currentDay.employee?.[indexE + 1]?.name
+                  "
+                />
+              </template>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <table-hours-per-week v-model:employee-selected="employeeSelected" />
+      <table-hours-per-week v-model:employee-selected="employeeSelected" />
+    </div>
   </div>
 </template>
