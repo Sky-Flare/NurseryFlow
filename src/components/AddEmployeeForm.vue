@@ -30,16 +30,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getState } from "radix-vue/dist/Checkbox/utils";
-import { Days } from "@/store/childStore";
-import {computed} from "vue";
+import { computed } from "vue";
 
 const props = defineProps<{
   idEmployee?: number;
 }>();
 const open = defineModel<boolean>("open");
 const { toast } = useToast();
-const { getStatusEmployee, updateEmployee, addEmployee, employees } = useEmployeeStore();
+const { getStatusEmployee, updateEmployee, addEmployee, employees } =
+  useEmployeeStore();
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
 const formSchema = toTypedSchema(
@@ -50,7 +49,9 @@ const formSchema = toTypedSchema(
     status: z.nativeEnum(StatusEmployeeOrChild),
   }),
 );
-const currentEmployee = computed(() => employees.find((e) => e.id === props.idEmployee));
+const currentEmployee = computed(() =>
+  employees.find((e) => e.id === props.idEmployee),
+);
 const { handleSubmit } = useForm({
   validationSchema: formSchema,
   initialValues: {
