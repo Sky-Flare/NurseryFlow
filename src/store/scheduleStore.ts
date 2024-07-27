@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { useEmployeeStore } from "@/store/index";
-import { Days } from "@/store/childStore";
+import { StatusEmployeeOrChild, useEmployeeStore } from "@/store/index";
+import { Days, useChildStore } from "@/store/childStore";
 
 export type Hour = {
   name: string;
@@ -11,6 +11,7 @@ export type Hour = {
 
 export const useScheduleStore = defineStore("schedule", () => {
   const { employees } = useEmployeeStore();
+  const { children } = useChildStore();
 
   const employeeDisplay = ref(true);
 
@@ -422,6 +423,105 @@ export const useScheduleStore = defineStore("schedule", () => {
     },
   });
 
+  function generateSchedule(date: Date) {
+    const schedule = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+    ].reduce((acc, day, index) => {
+      const currentDate = new Date(date);
+      currentDate.setDate(date.getDate() + index);
+      acc[day] = {
+        date: currentDate,
+        employee: [],
+        children: [],
+        totalChildren: [],
+      };
+      return acc;
+    }, {});
+
+    const childrenToWork = children.filter(
+      (c) => c.status === StatusEmployeeOrChild.WORKING,
+    );
+
+    childrenToWork.forEach((child) => {
+      for (const [key, value] of Object.entries(child.hours)) {
+        const currentDate = new Date(schedule[key].date);
+        if (value.start && value.end) {
+          const [startHour, startMinute] = value.start.split(":")?.map(Number);
+          const [endHour, endMinute] = value.end.split(":")?.map(Number);
+          schedule[key].children.push({
+            name: child.name,
+            id: child.id,
+            hours: [
+              {
+                start: new Date(
+                  new Date(currentDate).setHours(startHour, startMinute),
+                ),
+                end: new Date(
+                  new Date(currentDate).setHours(endHour, endMinute),
+                ),
+              },
+            ],
+          });
+        }
+      }
+    });
+
+    for (const [key, value] of Object.entries(schedule)) {
+      console.log(key);
+      const d = new Date(value.date);
+      d.setHours(7);
+      d.setMinutes(30);
+      d.setSeconds(0);
+      const slots = getTimeSlot(d).map((s) => {
+        return { date: s, children: [] };
+      });
+      slots.forEach((slot) => {
+        value.children.forEach((child) => {
+          if (
+            !slot.children.includes(child) &&
+            slot.date.getTime() >= child.hours[0].start.getTime() &&
+            slot.date.getTime() < child.hours[0].end.getTime()
+          ) {
+            slot.children.push(child);
+          }
+        });
+      });
+      console.log("slot", slots);
+      let currentNbChild = 0;
+      let currentStart: Date | null = null;
+      const totalChild = [];
+      slots.forEach((s, index) => {
+        if (
+          currentNbChild !== 0 &&
+          currentStart &&
+          currentNbChild !== s.children.length
+        ) {
+          totalChild.push({
+            number: currentNbChild,
+            start: currentStart,
+            end: s.date,
+          });
+          currentNbChild = s.children.length;
+          currentStart = s.date;
+        } else if (s.children.length) {
+          if (!currentStart) {
+            currentStart = s.date;
+          }
+          currentNbChild = s.children.length;
+        }
+      });
+      console.log(totalChild);
+    }
+
+    console.log(schedule);
+    //todo add children
+    //todo calcul totalChildren
+  }
+
   function addHoursOfDay(employee: Hour, day: Days, currentTime: number) {
     console.log(employee, day, currentTime);
     const currentEmployee = schedule.value[day]?.employee.find(
@@ -485,7 +585,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     employeeDisplay.value = !employeeDisplay.value;
     console.log("icic 2", employeeDisplay.value);
   }
-
+  generateSchedule(new Date("Mon Jul 29 2024"));
   return {
     schedule,
     addHoursOfDay,
