@@ -1,24 +1,15 @@
 <template>
   <div
-    v-if="
-      isDateBetween.active ||
-      (firstHours && isDateBetwennOtherHours === 0) ||
-      (!sameEmploye && indexEmployee !== 0)
-    "
+    v-if="isDateBetween.active || (firstHours && isDateBetwennOtherHours === 0)"
     class="w-full h-[24px] relative overflow-visible"
     @dragstart="startDrag"
     :draggable="isDateBetween.active"
     @click="
       !isDateBetween.active
-        ? addHoursOfDay(dayEmployee, day, currentTime.getTime())
+        ? scheduleStore.addHoursOfDay(dayEmployee, day, currentTime.getTime())
         : null
     "
     :class="[
-      {
-        'bg-red-400':
-          isDateBetween.active &&
-          (!employeeSelected || employeeSelected === dayEmployee.id),
-      },
       {
         'rounded-l-[8px]': isDateBetween.start,
       },
@@ -26,12 +17,24 @@
         'rounded-r-[8px]': isDateBetween.end,
       },
       {
-        'hover:bg-red-500 !cursor-ew-resize':
-          isDateBetween.start || isDateBetween.end,
+        '!cursor-ew-resize': isDateBetween.start || isDateBetween.end,
       },
       isDateBetween.active
         ? `${dayEmployee.name}-${day} cursor-grab active:cursor-grabbing`
-        : 'hover:bg-red-200',
+        : employeeDisplay
+        ? 'hover:bg-red-200'
+        : 'hover:bg-blue-200',
+      isDateBetween.active &&
+      (!employeeSelected || employeeSelected === dayEmployee.id)
+        ? employeeDisplay
+          ? 'bg-red-400'
+          : 'bg-blue-400'
+        : '',
+      isDateBetween.start || isDateBetween.end
+        ? employeeDisplay
+          ? 'hover:bg-red-500'
+          : 'hover:bg-blue-500'
+        : null,
     ]"
   >
     <div
@@ -47,8 +50,10 @@ import { ArrayElement, Days } from "@/store";
 import { computed } from "vue";
 import { Hour, useScheduleStore } from "@/store/scheduleStore";
 import { currentDrag } from "@/store/useDragAndDrop";
+import { storeToRefs } from "pinia";
 
-const { schedule, addHoursOfDay } = useScheduleStore();
+const scheduleStore = useScheduleStore();
+const { employeeDisplay } = storeToRefs(scheduleStore);
 
 const props = defineProps<{
   currentTime: Date;
@@ -57,7 +62,6 @@ const props = defineProps<{
   day: Days;
   firstHours: boolean;
   sameEmploye: boolean;
-  indexEmployee: number;
   employeeSelected?: number;
 }>();
 

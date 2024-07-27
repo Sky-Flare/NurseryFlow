@@ -15,7 +15,7 @@ import TableHoursPerWeek from "@/components/TableHoursPerWeek.vue";
 import { Button } from "@/components/ui/button";
 
 import { computed, ref, watch } from "vue";
-import { Employee } from "@/store";
+import { Days, Employee } from "@/store";
 import AddEmployeeSchedule from "@/components/AddEmployeeSchedule.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { storeToRefs } from "pinia";
@@ -28,17 +28,18 @@ const employeeSelected = ref<number>();
 </script>
 <template>
   <div v-if="schedule">
-    <div class="flex items-center justify-start text-xl gap-4">
+    <div
+      class="cursor-pointer flex items-center justify-start text-xl gap-4"
+      @click="scheduleStore.toggleUserTypeDisplayed()"
+    >
       <font-awesome-icon
         v-for="icon in ['user', 'baby']"
-        class="cursor-pointer"
         :class="
           (!employeeDisplay && icon === 'baby') ||
           (employeeDisplay && icon === 'user')
             ? 'text-primary'
             : 'text-gray-400'
         "
-        @click="scheduleStore.toggleUserTypeDisplayed()"
         :icon="['fas', icon]"
       />
     </div>
@@ -83,9 +84,8 @@ const employeeSelected = ref<number>();
                   :current-time="currentTime"
                   :time-employee="timeEmployee"
                   :day-employee="dayEmployee"
-                  :day="key"
+                  :day="key as Days"
                   :first-hours="index === 0"
-                  :index-employee="indexE"
                   :employee-selected="employeeSelected"
                   :same-employe="
                     dayEmployee.name === currentDay.employee?.[indexE + 1]?.name
