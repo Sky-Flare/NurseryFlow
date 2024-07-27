@@ -8,6 +8,18 @@ export type Hour = {
   id: number;
   hours: { id: number; start: Date; end: Date; total: number }[];
 };
+type TotalChildren = {
+  number: number;
+  start: Date;
+  end: Date;
+};
+
+type ScheduleItem = {
+  date: Date;
+  employee: Hour[];
+  children: Hour[];
+  totalChildren: TotalChildren[];
+};
 
 export const useScheduleStore = defineStore("schedule", () => {
   const { employees } = useEmployeeStore();
@@ -15,21 +27,7 @@ export const useScheduleStore = defineStore("schedule", () => {
 
   const employeeDisplay = ref(true);
 
-  const schedule = ref<
-    Record<
-      Partial<Days>,
-      {
-        date: Date;
-        employee: Hour[];
-        children: Hour[];
-        totalChildren: {
-          number: number;
-          start: Date;
-          end: Date;
-        }[];
-      }
-    >
-  >({
+  const schedule = ref<Record<Partial<Days>, ScheduleItem>>({
     Monday: {
       date: new Date(`August 12, 2024 7:30:00`),
       employee: [
@@ -424,7 +422,7 @@ export const useScheduleStore = defineStore("schedule", () => {
   });
 
   function generateSchedule(date: Date) {
-    const schedule = [
+    const schdl: Record<Partial<Days>, ScheduleItem> = [
       "Monday",
       "Tuesday",
       "Wednesday",
@@ -448,21 +446,23 @@ export const useScheduleStore = defineStore("schedule", () => {
 
     childrenToWork.forEach((child) => {
       for (const [key, value] of Object.entries(child.hours)) {
-        const currentDate = new Date(schedule[key].date);
+        const currentDate = new Date(schdl[key as Days].date);
         if (value.start && value.end) {
           const [startHour, startMinute] = value.start.split(":")?.map(Number);
           const [endHour, endMinute] = value.end.split(":")?.map(Number);
-          schedule[key].children.push({
+          schdl[key as Days].children.push({
             name: child.name,
             id: child.id,
             hours: [
               {
+                id: 0,
                 start: new Date(
                   new Date(currentDate).setHours(startHour, startMinute),
                 ),
                 end: new Date(
                   new Date(currentDate).setHours(endHour, endMinute),
                 ),
+                total: endHour - startHour + (endMinute - startMinute) / 60,
               },
             ],
           });
@@ -470,16 +470,22 @@ export const useScheduleStore = defineStore("schedule", () => {
       }
     });
 
-    for (const [key, value] of Object.entries(schedule)) {
+    for (const [key, value] of Object.entries(schdl)) {
       console.log(key);
       const d = new Date(value.date);
       d.setHours(7);
       d.setMinutes(30);
       d.setSeconds(0);
-      const slots = getTimeSlot(d).map((s) => {
-        return { date: s, children: [] };
-      });
+      const slots: { date: Date; children: Hour[] }[] = getTimeSlot(d).map(
+        (s) => {
+          return { date: s, children: [] };
+        },
+      );
+      let currentNbChild = 0;
+      let currentStart: Date | null = null;
+      const totalChild: TotalChildren[] = [];
       slots.forEach((slot) => {
+        //push child if he is working at this time
         value.children.forEach((child) => {
           if (
             !slot.children.includes(child) &&
@@ -489,37 +495,30 @@ export const useScheduleStore = defineStore("schedule", () => {
             slot.children.push(child);
           }
         });
-      });
-      console.log("slot", slots);
-      let currentNbChild = 0;
-      let currentStart: Date | null = null;
-      const totalChild = [];
-      slots.forEach((s, index) => {
+        // push total children if there is a change in the number of children
         if (
           currentNbChild !== 0 &&
           currentStart &&
-          currentNbChild !== s.children.length
+          currentNbChild !== slot.children.length
         ) {
           totalChild.push({
             number: currentNbChild,
             start: currentStart,
-            end: s.date,
+            end: slot.date,
           });
-          currentNbChild = s.children.length;
-          currentStart = s.date;
-        } else if (s.children.length) {
+          currentNbChild = slot.children.length;
+          currentStart = slot.date;
+        } else if (slot.children.length) {
           if (!currentStart) {
-            currentStart = s.date;
+            currentStart = slot.date;
           }
-          currentNbChild = s.children.length;
+          currentNbChild = slot.children.length;
         }
       });
-      console.log(totalChild);
+      value.totalChildren = totalChild;
     }
 
-    console.log(schedule);
-    //todo add children
-    //todo calcul totalChildren
+    console.log(schdl);
   }
 
   function addHoursOfDay(employee: Hour, day: Days, currentTime: number) {
@@ -585,7 +584,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     employeeDisplay.value = !employeeDisplay.value;
     console.log("icic 2", employeeDisplay.value);
   }
-  generateSchedule(new Date("Mon Jul 29 2024"));
+  generateSchedule(new Date("August 12, 2024 7:30:00"));
   return {
     schedule,
     addHoursOfDay,
