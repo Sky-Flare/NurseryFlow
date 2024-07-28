@@ -42,8 +42,8 @@ export const useEmployeeStore = defineStore("employee", () => {
   const employees = ref<Employee[]>([
     {
       name: "marine",
-      hoursPerWeek: 10,
-      daysOff: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
+      hoursPerWeek: 35,
+      daysOff: ["Wednesday"],
       id: 1,
       status: StatusEmployeeOrChild.WORKING,
     },
@@ -52,7 +52,7 @@ export const useEmployeeStore = defineStore("employee", () => {
       hoursPerWeek: 35,
       daysOff: [],
       id: 2,
-      status: StatusEmployeeOrChild.SICK,
+      status: StatusEmployeeOrChild.WORKING,
     },
     {
       name: "roxanne",
