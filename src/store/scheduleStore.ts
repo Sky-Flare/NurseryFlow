@@ -478,8 +478,9 @@ export const useScheduleStore = defineStore("schedule", () => {
         }
       }
     });
-
+    let indexSchedule = 0;
     for (const [key, value] of Object.entries(schdl)) {
+      console.log(indexSchedule);
       console.log(key);
       const d = new Date(value.date);
       d.setHours(7);
@@ -543,7 +544,9 @@ export const useScheduleStore = defineStore("schedule", () => {
             (hE) =>
               !hE.daysOff?.includes(key) &&
               hE.countingHours > 0 &&
-              !slot.employees.includes(hE),
+              !slot.employees.includes(hE) &&
+              hE.hoursPerWeek - hE.countingHours <
+                hE.average * (indexSchedule + 1),
           );
           // console.log(
           //   "availableEmployee",
@@ -554,10 +557,16 @@ export const useScheduleStore = defineStore("schedule", () => {
           // employé qui travail la tranche horaire precedente
           const employeeAlreadyInPreviousSlot = slots[indexSlot - 1]?.employees;
           const employeeAlreadyInPreviousSlotAvailable =
-            employeeAlreadyInPreviousSlot?.filter(
-              (eAiPs) =>
-                eAiPs.countingHours > 0 && !slot.employees.includes(eAiPs),
-            );
+            employeeAlreadyInPreviousSlot?.filter((eAiPs) => {
+              // {"name":"marine","hoursPerWeek":35,"daysOff":["Wednesday"],"id":1,"status":"working","average":8.75,"countingHours":34.5}
+
+              return (
+                eAiPs.countingHours > 0 &&
+                !slot.employees.includes(eAiPs) &&
+                eAiPs.hoursPerWeek - eAiPs.countingHours <
+                  eAiPs.average * (indexSchedule + 1)
+              );
+            });
           if (employeeAlreadyInPreviousSlotAvailable?.length) {
             // console.log("push previous employee");
             slot.employees.push(employeeAlreadyInPreviousSlotAvailable[0]);
@@ -574,6 +583,7 @@ export const useScheduleStore = defineStore("schedule", () => {
       slots.forEach((slot, indexSlot) => {
         console.log("SLOT  ✅ => ", slot.date);
         slot.employees.forEach((employee) => {
+          console.log("SLOT  employee => ", JSON.stringify(employee));
           const currentEmployeeAlreadyOnDay = value.employee?.filter(
             (ce) => ce.id === employee.id,
           );
@@ -593,19 +603,13 @@ export const useScheduleStore = defineStore("schedule", () => {
               console.log("SLOT  nothing => ");
               // todo nothing
             } else {
-              const fsdf = value.employee
-                ?.find((e) => e.id === employee.id)
-                ?.hours?.find(
-                  (h) =>
-                    h.start !== slots[indexSlot - 1].date &&
-                    h.end !== slots[indexSlot - 1].date,
-                );
+              const fsdf = value.employee?.find((e) => e.id === employee.id);
               console.log("SLOT fsdf  => ", JSON.stringify(fsdf));
               if (fsdf) {
-                fsdf.end = new Date(slots[indexSlot + 1].date);
-                fsdf.total =
+                fsdf.hours[0].end = new Date(slots[indexSlot + 1].date);
+                fsdf.hours[0].total =
                   (new Date(slots[indexSlot + 1].date).getTime() -
-                    fsdf.start.getTime()) /
+                    fsdf.hours[0].start.getTime()) /
                   (1000 * 60) /
                   60;
               }
@@ -632,12 +636,31 @@ export const useScheduleStore = defineStore("schedule", () => {
             });
           }
         });
+
+        const filterIds = new Set(
+          slots?.[indexSlot + 1]?.employees?.map((person) => person.id),
+        );
+        const result = value.employee
+          .filter(
+            (person) =>
+              !filterIds.has(person.id) &&
+              person.hours[0].start === person.hours[0].end,
+          )
+          .forEach((em) => {
+            em.hours[0].end = new Date(slots[indexSlot + 1].date);
+            em.hours[0].total =
+              (new Date(slots[indexSlot + 1].date).getTime() -
+                em.hours[0].start.getTime()) /
+              (1000 * 60) /
+              60;
+          });
       });
 
       // pour chaque slot, je regarde si le nombre d'employé voulu est atteint et je rajoute les employés necessaire
 
       console.log("slot", slots);
       value.totalChildren = totalChild;
+      indexSchedule++;
     }
     for (const [key, value] of Object.entries(schdl)) {
       value.employee.forEach((e) => {

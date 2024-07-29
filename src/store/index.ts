@@ -43,7 +43,7 @@ export const useEmployeeStore = defineStore("employee", () => {
     {
       name: "marine",
       hoursPerWeek: 35,
-      daysOff: ["Wednesday"],
+      daysOff: [],
       id: 1,
       status: StatusEmployeeOrChild.WORKING,
     },
@@ -66,7 +66,7 @@ export const useEmployeeStore = defineStore("employee", () => {
       hoursPerWeek: 35,
       daysOff: [],
       id: 4,
-      status: StatusEmployeeOrChild.VACATION,
+      status: StatusEmployeeOrChild.WORKING,
     },
   ]);
 
