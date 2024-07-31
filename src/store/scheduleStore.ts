@@ -640,7 +640,7 @@ export const useScheduleStore = defineStore("schedule", () => {
         const filterIds = new Set(
           slots?.[indexSlot + 1]?.employees?.map((person) => person.id),
         );
-        const result = value.employee
+        value.employee
           .filter(
             (person) =>
               !filterIds.has(person.id) &&
@@ -656,21 +656,114 @@ export const useScheduleStore = defineStore("schedule", () => {
           });
       });
 
-      // pour chaque slot, je regarde si le nombre d'employé voulu est atteint et je rajoute les employés necessaire
-
       console.log("slot", slots);
       value.totalChildren = totalChild;
       indexSchedule++;
     }
-    for (const [key, value] of Object.entries(schdl)) {
-      value.employee.forEach((e) => {
-        e.hours.forEach((h) => {
-          if (!h.end) {
-            console.log(key, e.name);
+    console.log("schdl =>>>>>", schdl);
+
+    console.log(employeeToWork);
+    employeeToWork.forEach((e) => {
+      if (e.countingHours !== 0) {
+        console.log(" 🎅 employe", e);
+
+        while (e.countingHours !== 0) {
+          const t = Object.entries(schdl).map((s) => {
+            return {
+              day: s[0],
+              employee: s[1].employee.find((ce) => e.id === ce.id),
+            };
+          });
+          console.log("tttt", JSON.stringify(t));
+          if (!t) {
+            return;
           }
-        });
-      });
-    }
+          console.log("while", e.countingHours);
+          console.log("while", e.daysOff);
+
+          const tSorted = JSON.parse(JSON.stringify(t))
+            .sort((a, b) => {
+              if (!("employee" in a) && b.employee?.hours.length) return -1; // a sans employé, b avec employé
+              if (a.employee?.hours.length && !("employee" in b)) return 1; // a avec employé, b sans employé
+              if (!("employee" in a) && !("employee" in b)) return 0; // les deux sans employé
+
+              // Calcul du total des heures pour les employés
+              const totalHoursA = a.employee?.hours.reduce(
+                (sum, hour) => sum + hour.total,
+                0,
+              );
+              const totalHoursB = b.employee?.hours.reduce(
+                (sum, hour) => sum + hour.total,
+                0,
+              );
+
+              return totalHoursA - totalHoursB;
+            })
+            .filter((s) => !e.daysOff.includes(s.day));
+          console.log("day", tSorted[0].day);
+          console.log("schdl[tSorted[0].day]", JSON.stringify(tSorted));
+          const currentEmployee = schdl[tSorted[0].day].employee.find(
+            (yyyy) => {
+              console.log("yyyy.id", yyyy.id);
+              console.log("e.id", e.id);
+              return yyyy.id === e.id;
+            },
+          );
+          if (!currentEmployee) {
+            console.log("!tSorted[0].employee", e.name);
+            const currentDateDay = schdl[tSorted[0].day]?.date;
+            schdl[tSorted[0].day].employee.push({
+              name: e.name,
+              id: e.id,
+              hours: [
+                {
+                  id: 1,
+                  start: new Date(new Date(currentDateDay).setHours(10, 30)),
+                  end: new Date(new Date(currentDateDay).setHours(11, 0)),
+                  total: 0.5,
+                },
+              ],
+            });
+            e.countingHours -= 0.5;
+            console.log("lese ", JSON.stringify(tSorted[0]));
+          } else {
+            console.log("tSorted else", JSON.stringify(tSorted[0]));
+            console.log("t total", JSON.stringify(currentEmployee));
+            const previousHours =
+              (new Date(currentEmployee.hours[0].start).getTime() -
+                new Date(
+                  new Date(currentEmployee.hours[0].start).setHours(7, 30),
+                ).getTime()) /
+              (1000 * 60) /
+              60;
+            const nextHours =
+              (new Date(
+                new Date(currentEmployee?.hours[0].end).setHours(18, 30),
+              ).getTime() -
+                new Date(currentEmployee.hours[0].end).getTime()) /
+              (1000 * 60) /
+              60;
+            if (currentEmployee?.hours[0].start) {
+              if (previousHours > nextHours) {
+                currentEmployee.hours[0].start = new Date(
+                  new Date(currentEmployee?.hours[0].start).getTime() -
+                    30 * 60000,
+                );
+              } else {
+                currentEmployee.hours[0].end = new Date(
+                  new Date(currentEmployee?.hours[0].end).getTime() +
+                    30 * 60000,
+                );
+              }
+              currentEmployee.hours[0].total += 0.5;
+              e.countingHours -= 0.5;
+            }
+          }
+        }
+        console.log(e);
+      }
+    });
+
     schedule.value = schdl;
     console.log(schdl);
   }

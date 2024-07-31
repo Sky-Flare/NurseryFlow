@@ -39,7 +39,7 @@ const open = defineModel<boolean>("open");
 const { toast } = useToast();
 const { getStatusEmployee, updateEmployee, addEmployee, employees } =
   useEmployeeStore();
-const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 const formSchema = toTypedSchema(
   z.object({

@@ -32,9 +32,9 @@ export const useChildStore = defineStore("child", () => {
     {
       name: "helene",
       hours: {
-        Monday: { start: "9:00", end: "16:30", total: 7.5 },
+        Monday: { start: "8:00", end: "16:30", total: 8.5 },
         Tuesday: { start: "10:00", end: "17:30", total: 7.5 },
-        Wednesday: { start: "8:30", end: "13:00", total: 4.5 },
+        Wednesday: { start: "9:30", end: "13:00", total: 3.5 },
         Thursday: { start: "", end: "", total: "" },
         Friday: { start: "8:30", end: "16:00", total: 7.5 },
       },
@@ -58,13 +58,13 @@ export const useChildStore = defineStore("child", () => {
     {
       name: "abby",
       hours: {
-        Monday: { start: "11:00", end: "18:30", total: 7.5 },
+        Monday: { start: "9:00", end: "18:30", total: 9.5 },
         Tuesday: { start: "12:30", end: "18:30", total: 6 },
         Wednesday: { start: "7:30", end: "15:00", total: 7.5 },
         Thursday: { start: "8:00", end: "14:30", total: 6.5 },
         Friday: { start: "", end: "", total: "" },
       },
-      total: 27.5,
+      total: 29.5,
       status: StatusEmployeeOrChild.WORKING,
       id: 2,
     },
@@ -145,6 +145,32 @@ export const useChildStore = defineStore("child", () => {
       total: 17,
       status: StatusEmployeeOrChild.WORKING,
       id: 8,
+    },
+    {
+      name: "Lou eve",
+      hours: {
+        Monday: { start: "10:00", end: "15:30", total: 5.5 },
+        Tuesday: { start: "11:00", end: "16:30", total: 5.5 },
+        Wednesday: { start: "", end: "18:30", total: "" },
+        Thursday: { start: "", end: "18:30", total: "" },
+        Friday: { start: "8:30", end: "17:00", total: 8.5 },
+      },
+      total: 19.5,
+      status: StatusEmployeeOrChild.WORKING,
+      id: 9,
+    },
+    {
+      name: "Nina",
+      hours: {
+        Monday: { start: "", end: "18:30", total: "" },
+        Tuesday: { start: "", end: "18:30", total: "" },
+        Wednesday: { start: "", end: "18:30", total: "" },
+        Thursday: { start: "9:00", end: "18:30", total: 9.5 },
+        Friday: { start: "9:00", end: "18:30", total: 9.5 },
+      },
+      total: 19,
+      status: StatusEmployeeOrChild.WORKING,
+      id: 10,
     },
   ]);
 

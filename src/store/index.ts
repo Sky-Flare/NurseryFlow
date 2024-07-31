@@ -35,7 +35,7 @@ interface State {
   schedule: (Employee | null)[][][];
 }
 
-const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const hoursPerDay = 9;
 
 export const useEmployeeStore = defineStore("employee", () => {
@@ -43,30 +43,44 @@ export const useEmployeeStore = defineStore("employee", () => {
     {
       name: "marine",
       hoursPerWeek: 35,
-      daysOff: [],
-      id: 1,
+      daysOff: ["Wednesday"],
       status: StatusEmployeeOrChild.WORKING,
+      id: 1,
     },
     {
       name: "fanny",
       hoursPerWeek: 35,
-      daysOff: [],
-      id: 2,
+      daysOff: ["Monday"],
       status: StatusEmployeeOrChild.WORKING,
+      id: 2,
     },
     {
       name: "roxanne",
       hoursPerWeek: 35,
-      daysOff: [],
-      id: 3,
+      daysOff: ["Tuesday"],
       status: StatusEmployeeOrChild.WORKING,
+      id: 3,
     },
     {
       name: "Sandrine",
       hoursPerWeek: 35,
-      daysOff: [],
-      id: 4,
+      daysOff: ["Friday"],
       status: StatusEmployeeOrChild.WORKING,
+      id: 4,
+    },
+    {
+      name: "Sophie",
+      hoursPerWeek: 20,
+      daysOff: [],
+      status: StatusEmployeeOrChild.WORKING,
+      id: 1722459857100,
+    },
+    {
+      name: "Lise",
+      hoursPerWeek: 15,
+      daysOff: ["Thursday"],
+      status: StatusEmployeeOrChild.WORKING,
+      id: 1722459876115,
     },
   ]);
 
