@@ -1,77 +1,94 @@
 <template>
-  <div ref="container">
-    <template v-for="index in 200" :key="index">
-      <div
-        v-if="index > currentId - 5 && index < currentId + 5"
-        :ref="(el) => (elements[index] = el)"
-        :data-id="index"
-      >
-        <Tasks :index="index" :key="index" />
+  <div class="container px-4">
+    <Toaster />
+
+    <div class="flex justify-between items-center py-4">
+      <NavigationMenu v-model="currentTrigger">
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              :class="navigationMenuTriggerStyle()"
+              class="cursor-pointer gap-1"
+              @click="$router.push('/')"
+              :style="
+                $route.name === 'home'
+                  ? 'color: hsl(var(--accent-foreground)); background-color: hsl(var(--accent));'
+                  : ''
+              "
+            >
+              <img class="h-8 w-" src="/assets/img/baby.svg" />
+              <h1 class="font-bold">Garderie</h1>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              :class="navigationMenuTriggerStyle()"
+              class="cursor-pointer"
+              @click="$router.push('/employee')"
+              :style="
+                $route.name === 'employee'
+                  ? 'color: hsl(var(--accent-foreground)); background-color: hsl(var(--accent));'
+                  : ''
+              "
+            >
+              Employés
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              :class="navigationMenuTriggerStyle()"
+              class="cursor-pointer"
+              @click="$router.push('/children')"
+              :style="
+                $route.name === 'children'
+                  ? 'color: hsl(var(--accent-foreground)); background-color: hsl(var(--accent));'
+                  : ''
+              "
+            >
+              Enfants
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+      <div class="cursor-pointer" @click="changeTheme">
+        <font-awesome-icon :icon="['fas', 'circle-half-stroke']" />
       </div>
-    </template>
+    </div>
+    <div>
+      <Separator />
+      <div class="py-6">
+        <RouterView />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Toaster } from "@/components/ui/toast";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  ComponentPublicInstance,
-  onMounted,
-  ref,
-  watch,
-} from "@vue/runtime-dom";
-import Tasks from "./components/Tasks.vue";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { Separator } from "@/components/ui/separator";
+import { computed, ref, watch } from "vue";
+import Test from "@/components/test.vue";
 
-const elements = ref<Element[] | ComponentPublicInstance[] | null[]>([]);
-const container = ref<Element>();
-const observer = ref<IntersectionObserver>();
-const currentId = ref(1);
-
-observer.value = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.intersectionRatio > 0.5) {
-        currentId.value = Number((entry.target as any).dataset.id);
-        console.log(currentId.value);
-      }
-    });
-  },
-  { threshold: [0.5] }
-);
-watch(
-  () => currentId.value,
-  () => {
-    console.log(currentId.value);
-    observer.value?.unobserve;
-    if (elements.value.length) {
-      elements.value.forEach((el) => {
-        const value = el as Element;
-        if (value) {
-          observer.value?.observe(value);
-        }
-      });
-    }
-  }
-);
-
-onMounted(() => {
-  if (elements.value.length) {
-    elements.value.forEach((el) => {
-      const value = el as Element;
-      if (value) {
-        observer.value?.observe(value);
-      }
-    });
-  }
-});
+const currentTrigger = ref("");
+function changeTheme() {
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark") ? "light" : "dark",
+  );
+  document.body.classList.toggle("dark");
+}
+localStorage.getItem("theme") === "dark" &&
+  document.body.classList.toggle("dark");
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style scoped></style>
