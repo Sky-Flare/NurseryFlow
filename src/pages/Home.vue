@@ -24,9 +24,30 @@ const scheduleStore = useScheduleStore();
 const { employeeDisplay, schedule } = storeToRefs(scheduleStore);
 const { onDrop, onLeave } = useDragAndDrop();
 
+const selectedDate = ref<Date>();
+
 const employeeSelected = ref<number>();
 </script>
 <template>
+  <div
+    v-if="!schedule"
+    class="h-full w-full flex flex-col items-center justify-center gap-4 pt-8"
+  >
+    <div class="border rounded cursor-pointer w-fit">
+      <input
+        class="cursor-pointer input-date text-foreground bg-background"
+        type="date"
+        v-model="selectedDate"
+      />
+    </div>
+    <Button
+      @click="
+        selectedDate ? scheduleStore.generateSchedule(selectedDate) : null
+      "
+      :disabled="!selectedDate"
+      >Générer</Button
+    >
+  </div>
   <div v-if="schedule">
     <div
       class="cursor-pointer flex items-center justify-start text-xl gap-4"
@@ -101,3 +122,9 @@ const employeeSelected = ref<number>();
     </div>
   </div>
 </template>
+
+<style>
+.dark ::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+</style>

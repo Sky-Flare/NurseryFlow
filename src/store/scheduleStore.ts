@@ -27,399 +27,7 @@ export const useScheduleStore = defineStore("schedule", () => {
 
   const employeeDisplay = ref(true);
 
-  const schedule = ref<Record<Partial<Days>, ScheduleItem>>({
-    Monday: {
-      date: new Date(`August 12, 2024 7:30:00`),
-      employee: [
-        {
-          name: "marine",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 12, 2024 07:30:00"),
-              end: new Date("August 12, 2024 12:30:00"),
-              total: 5,
-            },
-            {
-              id: 2,
-              start: new Date("August 12, 2024 14:30:00"),
-              end: new Date("August 12, 2024 18:30:00"),
-              total: 4,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 12, 2024 10:00:00"),
-              end: new Date("August 12, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      children: [
-        {
-          name: "robin",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 12, 2024 07:30:00"),
-              end: new Date("August 12, 2024 12:30:00"),
-              total: 5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 12, 2024 10:00:00"),
-              end: new Date("August 12, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      totalChildren: [
-        {
-          number: 0,
-          start: new Date("August 12, 2024 07:30:00"),
-          end: new Date("August 12, 2024 09:30:00"),
-        },
-        {
-          number: 4,
-          start: new Date("August 12, 2024 09:30:00"),
-          end: new Date("August 12, 2024 12:30:00"),
-        },
-        {
-          number: 11,
-          start: new Date("August 12, 2024 12:30:00"),
-          end: new Date("August 12, 2024 17:30:00"),
-        },
-        {
-          number: 6,
-          start: new Date("August 12, 2024 17:30:00"),
-          end: new Date("August 12, 2024 18:30:00"),
-        },
-      ],
-    },
-    Tuesday: {
-      date: new Date(`August 13, 2024 7:30:00`),
-      employee: [
-        {
-          name: "marine",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 13, 2024 07:30:00"),
-              end: new Date("August 13, 2024 12:00:00"),
-              total: 4.5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 13, 2024 12:00:00"),
-              end: new Date("August 13, 2024 17:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      children: [
-        {
-          name: "robin",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 13, 2024 07:30:00"),
-              end: new Date("August 13, 2024 12:30:00"),
-              total: 5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 13, 2024 10:00:00"),
-              end: new Date("August 13, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      totalChildren: [
-        {
-          number: 0,
-          start: new Date("August 13, 2024 07:30:00"),
-          end: new Date("August 13, 2024 09:30:00"),
-        },
-        {
-          number: 4,
-          start: new Date("August 13, 2024 09:30:00"),
-          end: new Date("August 13, 2024 12:30:00"),
-        },
-        {
-          number: 11,
-          start: new Date("August 13, 2024 12:30:00"),
-          end: new Date("August 13, 2024 17:30:00"),
-        },
-        {
-          number: 6,
-          start: new Date("August 13, 2024 17:30:00"),
-          end: new Date("August 13, 2024 18:30:00"),
-        },
-      ],
-    },
-    Wednesday: {
-      date: new Date(`August 14, 2024 7:30:00`),
-      employee: [
-        {
-          name: "marine",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 14, 2024 07:30:00"),
-              end: new Date("August 14, 2024 12:00:00"),
-              total: 4.5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 14, 2024 12:00:00"),
-              end: new Date("August 14, 2024 17:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      children: [
-        {
-          name: "robin",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 14, 2024 07:30:00"),
-              end: new Date("August 14, 2024 12:30:00"),
-              total: 5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 14, 2024 10:00:00"),
-              end: new Date("August 14, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      totalChildren: [
-        {
-          number: 0,
-          start: new Date("August 14, 2024 07:30:00"),
-          end: new Date("August 14, 2024 09:30:00"),
-        },
-        {
-          number: 4,
-          start: new Date("August 14, 2024 09:30:00"),
-          end: new Date("August 14, 2024 12:30:00"),
-        },
-        {
-          number: 11,
-          start: new Date("August 14, 2024 12:30:00"),
-          end: new Date("August 14, 2024 17:30:00"),
-        },
-        {
-          number: 6,
-          start: new Date("August 14, 2024 17:30:00"),
-          end: new Date("August 14, 2024 18:30:00"),
-        },
-      ],
-    },
-    Thursday: {
-      date: new Date(`August 15, 2024 7:30:00`),
-      employee: [
-        {
-          name: "marine",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 15, 2024 07:30:00"),
-              end: new Date("August 15, 2024 12:00:00"),
-              total: 4.5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 15, 2024 12:00:00"),
-              end: new Date("August 15, 2024 17:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      children: [
-        {
-          name: "robin",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 15, 2024 07:30:00"),
-              end: new Date("August 15, 2024 12:30:00"),
-              total: 5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 15, 2024 10:00:00"),
-              end: new Date("August 15, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      totalChildren: [
-        {
-          number: 0,
-          start: new Date("August 15, 2024 07:30:00"),
-          end: new Date("August 15, 2024 09:30:00"),
-        },
-        {
-          number: 4,
-          start: new Date("August 15, 2024 09:30:00"),
-          end: new Date("August 15, 2024 12:30:00"),
-        },
-        {
-          number: 11,
-          start: new Date("August 15, 2024 12:30:00"),
-          end: new Date("August 15, 2024 17:30:00"),
-        },
-        {
-          number: 6,
-          start: new Date("August 15, 2024 17:30:00"),
-          end: new Date("August 15, 2024 18:30:00"),
-        },
-      ],
-    },
-    Friday: {
-      date: new Date(`August 16, 2024 7:30:00`),
-      employee: [
-        {
-          name: "marine",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 16, 2024 07:30:00"),
-              end: new Date("August 16, 2024 12:00:00"),
-              total: 4.5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 16, 2024 12:00:00"),
-              end: new Date("August 16, 2024 17:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      children: [
-        {
-          name: "robin",
-          id: 1,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 16, 2024 07:30:00"),
-              end: new Date("August 16, 2024 12:30:00"),
-              total: 5,
-            },
-          ],
-        },
-        {
-          name: "fanny",
-          id: 2,
-          hours: [
-            {
-              id: 1,
-              start: new Date("August 16, 2024 10:00:00"),
-              end: new Date("August 16, 2024 15:30:00"),
-              total: 5.5,
-            },
-          ],
-        },
-      ],
-      totalChildren: [
-        {
-          number: 0,
-          start: new Date("August 16, 2024 07:30:00"),
-          end: new Date("August 16, 2024 09:30:00"),
-        },
-        {
-          number: 4,
-          start: new Date("August 16, 2024 09:30:00"),
-          end: new Date("August 16, 2024 12:30:00"),
-        },
-        {
-          number: 11,
-          start: new Date("August 16, 2024 12:30:00"),
-          end: new Date("August 16, 2024 17:30:00"),
-        },
-        {
-          number: 6,
-          start: new Date("August 16, 2024 17:30:00"),
-          end: new Date("August 16, 2024 18:30:00"),
-        },
-      ],
-    },
-  });
+  const schedule = ref<Record<Partial<Days>, ScheduleItem>>();
 
   function generateSchedule(date: Date) {
     const schdl: Record<Partial<Days>, ScheduleItem> = [
@@ -429,8 +37,8 @@ export const useScheduleStore = defineStore("schedule", () => {
       "Thursday",
       "Friday",
     ].reduce((acc, day, index) => {
-      const currentDate = new Date(date);
-      currentDate.setDate(date.getDate() + index);
+      const currentDate = new Date(new Date(new Date(date)).setHours(7, 30));
+      currentDate.setDate(currentDate.getDate() + index);
       acc[day] = {
         date: currentDate,
         employee: [],
@@ -447,9 +55,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     const employeeToWork = employees
       .filter((emp) => emp.status === StatusEmployeeOrChild.WORKING)
       .map((e) => {
-        console.log("e", e);
         const average = e.hoursPerWeek / (5 - e.daysOff?.length);
-        console.log("e.hoursPerWeek", e.hoursPerWeek);
         return { ...e, average, countingHours: e.hoursPerWeek };
       });
 
@@ -480,8 +86,6 @@ export const useScheduleStore = defineStore("schedule", () => {
     });
     let indexSchedule = 0;
     for (const [key, value] of Object.entries(schdl)) {
-      console.log(indexSchedule);
-      console.log(key);
       const d = new Date(value.date);
       d.setHours(7);
       d.setMinutes(30);
@@ -581,30 +185,18 @@ export const useScheduleStore = defineStore("schedule", () => {
         //ajout des horaires definitif d'un user
       });
       slots.forEach((slot, indexSlot) => {
-        console.log("SLOT  ✅ => ", slot.date);
         slot.employees.forEach((employee) => {
-          console.log("SLOT  employee => ", JSON.stringify(employee));
           const currentEmployeeAlreadyOnDay = value.employee?.filter(
             (ce) => ce.id === employee.id,
-          );
-          console.log(
-            "SLOT  currentEmployeeAlreadyOnDay => ",
-            JSON.stringify(currentEmployeeAlreadyOnDay),
           );
           if (currentEmployeeAlreadyOnDay?.length) {
             const employeeInNextSlot = slots[indexSlot + 1]?.employees?.filter(
               (e) => e.id === employee.id,
             );
-            console.log(
-              "SLOT  employeeInNextSlot => ",
-              JSON.stringify(employeeInNextSlot),
-            );
             if (employeeInNextSlot?.length) {
-              console.log("SLOT  nothing => ");
               // todo nothing
             } else {
               const fsdf = value.employee?.find((e) => e.id === employee.id);
-              console.log("SLOT fsdf  => ", JSON.stringify(fsdf));
               if (fsdf) {
                 fsdf.hours[0].end = new Date(slots[indexSlot + 1].date);
                 fsdf.hours[0].total =
@@ -620,8 +212,6 @@ export const useScheduleStore = defineStore("schedule", () => {
             // }
             //todo
           } else {
-            console.log("SLOT else  => ", JSON.stringify(employee.name));
-
             value.employee.push({
               name: employee.name,
               id: employee.id,
@@ -656,17 +246,12 @@ export const useScheduleStore = defineStore("schedule", () => {
           });
       });
 
-      console.log("slot", slots);
       value.totalChildren = totalChild;
       indexSchedule++;
     }
-    console.log("schdl =>>>>>", schdl);
 
-    console.log(employeeToWork);
     employeeToWork.forEach((e) => {
       if (e.countingHours !== 0) {
-        console.log(" 🎅 employe", e);
-
         while (e.countingHours !== 0) {
           const t = Object.entries(schdl).map((s) => {
             return {
@@ -674,12 +259,9 @@ export const useScheduleStore = defineStore("schedule", () => {
               employee: s[1].employee.find((ce) => e.id === ce.id),
             };
           });
-          console.log("tttt", JSON.stringify(t));
           if (!t) {
             return;
           }
-          console.log("while", e.countingHours);
-          console.log("while", e.daysOff);
 
           const tSorted = JSON.parse(JSON.stringify(t))
             .sort((a, b) => {
@@ -700,17 +282,12 @@ export const useScheduleStore = defineStore("schedule", () => {
               return totalHoursA - totalHoursB;
             })
             .filter((s) => !e.daysOff.includes(s.day));
-          console.log("day", tSorted[0].day);
-          console.log("schdl[tSorted[0].day]", JSON.stringify(tSorted));
           const currentEmployee = schdl[tSorted[0].day].employee.find(
             (yyyy) => {
-              console.log("yyyy.id", yyyy.id);
-              console.log("e.id", e.id);
               return yyyy.id === e.id;
             },
           );
           if (!currentEmployee) {
-            console.log("!tSorted[0].employee", e.name);
             const currentDateDay = schdl[tSorted[0].day]?.date;
             schdl[tSorted[0].day].employee.push({
               name: e.name,
@@ -725,10 +302,7 @@ export const useScheduleStore = defineStore("schedule", () => {
               ],
             });
             e.countingHours -= 0.5;
-            console.log("lese ", JSON.stringify(tSorted[0]));
           } else {
-            console.log("tSorted else", JSON.stringify(tSorted[0]));
-            console.log("t total", JSON.stringify(currentEmployee));
             const previousHours =
               (new Date(currentEmployee.hours[0].start).getTime() -
                 new Date(
@@ -760,12 +334,10 @@ export const useScheduleStore = defineStore("schedule", () => {
             }
           }
         }
-        console.log(e);
       }
     });
 
     schedule.value = schdl;
-    console.log(schdl);
   }
 
   function addHoursOfDay(employee: Hour, day: Days, currentTime: number) {
@@ -831,9 +403,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     employeeDisplay.value = !employeeDisplay.value;
     console.log("icic 2", employeeDisplay.value);
   }
-  setTimeout(() => {
-    generateSchedule(new Date("August 12, 2024 7:30:00"));
-  }, 2000);
+
   return {
     schedule,
     addHoursOfDay,
@@ -841,6 +411,7 @@ export const useScheduleStore = defineStore("schedule", () => {
     addEmployeeOfOneDay,
     employeeDisplay,
     toggleUserTypeDisplayed,
+    generateSchedule,
     deleteHour,
   };
 });

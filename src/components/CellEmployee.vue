@@ -39,7 +39,10 @@
   >
     <div
       class="capitalize w-max pl-2 absolute left-0 z-[1] text-white"
-      v-if="isDateBetween.start"
+      v-if="
+        isDateBetween.start &&
+        (!employeeSelected || employeeSelected === dayEmployee.id)
+      "
     >
       {{ dayEmployee.name }} {{ timeEmployee.total }}
     </div>

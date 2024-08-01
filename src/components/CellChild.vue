@@ -22,7 +22,7 @@
       v-if="!isok"
       class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]"
     >
-      ⚠️
+      🚨
     </div>
   </div>
 </template>
