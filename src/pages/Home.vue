@@ -21,22 +21,35 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { storeToRefs } from "pinia";
 
 const scheduleStore = useScheduleStore();
-const { employeeDisplay, schedule } = storeToRefs(scheduleStore);
+const { employeeDisplay, schedule, generateScheduleLoading } =
+  storeToRefs(scheduleStore);
 const { onDrop, onLeave } = useDragAndDrop();
 
 const selectedDate = ref<Date>();
-
+const errorNotMonday = ref(false);
 const employeeSelected = ref<number>();
+
+watch(selectedDate, () => {
+  errorNotMonday.value = false;
+  if (!selectedDate.value) {
+    return;
+  }
+  if (new Date(selectedDate.value).getDay() !== 1) {
+    errorNotMonday.value = true;
+  }
+});
 </script>
 <template>
   <div
     v-if="!schedule"
     class="h-full w-full flex flex-col items-center justify-center gap-4 pt-8"
   >
+    <p :class="{ 'text-destructive': errorNotMonday }">Selectionner un lundi</p>
     <div class="border rounded cursor-pointer w-fit">
       <input
         class="cursor-pointer input-date text-foreground bg-background"
         type="date"
+        @click="errorNotMonday = false"
         v-model="selectedDate"
       />
     </div>
@@ -44,9 +57,16 @@ const employeeSelected = ref<number>();
       @click="
         selectedDate ? scheduleStore.generateSchedule(selectedDate) : null
       "
-      :disabled="!selectedDate"
-      >Générer</Button
+      :disabled="!selectedDate || errorNotMonday"
     >
+      Générer
+      <font-awesome-icon
+        v-if="generateScheduleLoading"
+        spin
+        class="ml-2"
+        :icon="['fas', 'spinner']"
+      />
+    </Button>
   </div>
   <div v-if="schedule">
     <div
@@ -87,7 +107,10 @@ const employeeSelected = ref<number>();
               />
               <time-bar :current-time="currentTime" :index-time="indexTime" />
 
-              <template v-for="timeChild in currentDay.totalChildren">
+              <template
+                v-for="timeChild in currentDay.totalChildren"
+                :key="key + timeChild.number + indexTime"
+              >
                 <cell-child
                   :day-employees="currentDay.employee"
                   :current-time="currentTime"
@@ -101,7 +124,7 @@ const employeeSelected = ref<number>();
               >
                 <cell-employee
                   v-for="(timeEmployee, index) in dayEmployee.hours"
-                  :key="dayEmployee.name + index"
+                  :key="dayEmployee.name + indexE + index + indexTime"
                   :current-time="currentTime"
                   :time-employee="timeEmployee"
                   :day-employee="dayEmployee"

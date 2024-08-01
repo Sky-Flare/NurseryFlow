@@ -24,12 +24,13 @@ type ScheduleItem = {
 export const useScheduleStore = defineStore("schedule", () => {
   const { employees } = useEmployeeStore();
   const { children } = useChildStore();
-
+  const generateScheduleLoading = ref(false);
   const employeeDisplay = ref(true);
 
   const schedule = ref<Record<Partial<Days>, ScheduleItem>>();
 
   function generateSchedule(date: Date) {
+    generateScheduleLoading.value = true;
     const schdl: Record<Partial<Days>, ScheduleItem> = [
       "Monday",
       "Tuesday",
@@ -336,8 +337,8 @@ export const useScheduleStore = defineStore("schedule", () => {
         }
       }
     });
-
     schedule.value = schdl;
+    generateScheduleLoading.value = false;
   }
 
   function addHoursOfDay(employee: Hour, day: Days, currentTime: number) {
@@ -372,15 +373,19 @@ export const useScheduleStore = defineStore("schedule", () => {
   }
 
   function deleteHour(day: Days, nameEmployee: string, hourId: number) {
+    console.log(day, nameEmployee, hourId);
     const currentEmployee = schedule.value[day]?.employee.find(
       (el) => el.name === nameEmployee,
     );
+    console.log(currentEmployee);
     const curentHours = currentEmployee?.hours.findIndex(
-      (el) => el.id === hourId,
+      (el) => el.id === hourId + 1,
     );
+    console.log(curentHours);
     if (!curentHours) {
       return;
     }
+    console.log(currentEmployee);
     currentEmployee?.hours.splice(curentHours, 1);
   }
 
@@ -413,5 +418,6 @@ export const useScheduleStore = defineStore("schedule", () => {
     toggleUserTypeDisplayed,
     generateSchedule,
     deleteHour,
+    generateScheduleLoading,
   };
 });

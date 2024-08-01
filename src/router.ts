@@ -8,6 +8,7 @@ export const router = VueRouter.createRouter({
   routes: [
     {
       path: "/",
+      name: "home",
       component: Home,
     },
     { path: "/employee", component: EmployeeList, name: "employee" },

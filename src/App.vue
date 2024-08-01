@@ -10,15 +10,18 @@
               :class="navigationMenuTriggerStyle()"
               class="cursor-pointer gap-1"
               @click="$router.push('/')"
+              :style="
+                $route.name === 'home'
+                  ? 'color: hsl(var(--accent-foreground)); background-color: hsl(var(--accent));'
+                  : ''
+              "
             >
               <img class="h-8 w-" src="/assets/img/baby.svg" />
               <h1 class="font-bold">Garderie</h1>
             </NavigationMenuLink>
           </NavigationMenuItem>
-          <NavigationMenuItem data-active="true" active="true">
+          <NavigationMenuItem>
             <NavigationMenuLink
-              data-active="true"
-              :active="true"
               :class="navigationMenuTriggerStyle()"
               class="cursor-pointer"
               @click="$router.push('/employee')"

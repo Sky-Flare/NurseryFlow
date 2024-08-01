@@ -4,10 +4,10 @@
     class="w-full h-[24px] relative overflow-visible"
     @dragstart="startDrag"
     :draggable="isDateBetween.active"
-    @click="
+    @click.stop.prevent="
       !isDateBetween.active
         ? scheduleStore.addHoursOfDay(dayEmployee, day, currentTime.getTime())
-        : null
+        : deleteHour()
     "
     :class="[
       {
@@ -49,11 +49,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ArrayElement, Days } from "@/store";
+import { ArrayElement } from "@/store";
 import { computed } from "vue";
 import { Hour, useScheduleStore } from "@/store/scheduleStore";
 import { currentDrag } from "@/store/useDragAndDrop";
 import { storeToRefs } from "pinia";
+import { useToast } from "@/components/ui/toast";
+import { Days } from "@/store/childStore";
 
 const scheduleStore = useScheduleStore();
 const { employeeDisplay } = storeToRefs(scheduleStore);
@@ -109,5 +111,19 @@ function startDrag() {
     currentDate: props.currentTime.toString(),
     hourId: props.timeEmployee.id.toString(),
   };
+}
+
+function deleteHour() {
+  if (
+    window.confirm(
+      `Souhaitez-vous vraiment supprimer ${props.dayEmployee.name} le ${props.day}`,
+    )
+  ) {
+    scheduleStore.deleteHour(
+      props.day as Days,
+      props.dayEmployee.name,
+      props.timeEmployee.id,
+    );
+  }
 }
 </script>

@@ -13,6 +13,7 @@ import {
   faBaby,
   faPlus,
   faSortNumericDesc,
+  faSpinner,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -40,6 +41,7 @@ library.add(
   faUserPlus,
   faBaby,
   faUser,
+  faSpinner,
 );
 
 createApp(App).use(router).use(createPinia()).mount("#app");
