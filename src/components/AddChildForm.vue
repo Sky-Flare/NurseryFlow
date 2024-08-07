@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Input } from '@/components/ui/input';
 
 import { Child, Days, HoursArray, useChildStore } from '@/store/childStore';
-import { StatusEmployeeOrChild } from '@/store';
+import { StatusEmployeeOrChild } from '@/store/employeeStore';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const props = defineProps<{ child?: Child }>();

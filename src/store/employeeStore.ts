@@ -67,15 +67,6 @@ export const useEmployeeStore = defineStore('employee', () => {
         },
     ]);
 
-    const childrenPerHour = ref<number[][]>([
-        [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
-        [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
-        [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
-        [3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4],
-        [14, 14, 14, 14, 3, 4, 4, 4, 4, 4, 4],
-    ]);
-    const schedule = ref<(Employee | null)[][][]>([]);
-
     function addEmployee(employee: Omit<Employee, 'id'>) {
         employees.value.push({ ...employee, id: new Date().getTime() });
     }
@@ -100,17 +91,10 @@ export const useEmployeeStore = defineStore('employee', () => {
         employees.value[index] = e;
     }
 
-    function setChildrenPerHour(childs: number[][]) {
-        childrenPerHour.value = childs;
-    }
-
     return {
         employees,
-        childrenPerHour,
-        schedule,
         addEmployee,
         removeEmployee,
-        setChildrenPerHour,
         updateEmployee,
         getStatusEmployee,
     };

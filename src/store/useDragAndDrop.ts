@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { Hour, useScheduleStore } from '@/store/scheduleStore';
 import { storeToRefs } from 'pinia';
-import { Days } from '@/store/index';
+import { Days } from '@/store/employeeStore';
 
 export const currentDrag = ref<{
     itemID: string;

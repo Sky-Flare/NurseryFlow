@@ -1,3 +1,82 @@
+<script lang="ts" setup>
+import { computed, ref, watch } from 'vue';
+
+import AddChildForm from '@/components/AddChildForm.vue';
+import { Button } from '@/components/ui/button';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { StatusEmployeeOrChild } from '@/store/employeeStore';
+import { Child, useChildStore } from '@/store/childStore';
+import Input from '@/components/ui/input/Input.vue';
+const { children, getStatusChild } = useChildStore();
+
+enum SortType {
+    NAME = 'name',
+    STATUS = 'status',
+    HOURS = 'hours',
+    NONE = 'none',
+}
+enum FilterType {
+    STATUS = 'status',
+    NONE = 'none',
+}
+
+enum Sort {
+    ASC = 'asc',
+    DESC = 'desc',
+}
+const search = ref('');
+const currentSortType = ref<SortType>(SortType.NONE);
+const currentFilterType = ref<FilterType>(FilterType.NONE);
+const currentFilter = ref<StatusEmployeeOrChild[]>([]);
+const currentSort = ref<Sort>(Sort.ASC);
+const childrenFiltered = computed(() => {
+    let currentChildrenList = [...children];
+    if (search.value) {
+        currentChildrenList = currentChildrenList.filter((child) => child.name.toLowerCase().includes(search.value.toLowerCase()));
+    }
+    if (currentFilterType.value !== FilterType.NONE) {
+        currentChildrenList = currentChildrenList.filter((child) => currentFilter.value?.includes(child.status));
+    }
+    if (currentSortType.value === SortType.NONE) {
+        return currentChildrenList;
+    }
+    switch (currentSortType.value) {
+        case SortType.NAME:
+            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
+        case SortType.STATUS:
+            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status)));
+        case SortType.HOURS:
+            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.total - b.total : b.total - a.total));
+    }
+    return currentChildrenList;
+});
+const openEditForm = ref(false);
+const childToEdit = ref<Child>();
+watch(openEditForm, (v) => {
+    if (!v) {
+        childToEdit.value = undefined;
+    }
+});
+const totalHoursPerDays = (start: string, end: string) => {
+    if (start && end) {
+        const [startHour, startMinute] = start.split(':').map(Number);
+        const [endHour, endMinute] = end.split(':').map(Number);
+        return endHour - startHour + (endMinute - startMinute) / 60;
+    }
+    return '';
+};
+watch(
+    () => currentFilter.value.length,
+    (v) => {
+        if (v === 0) {
+            currentFilterType.value = FilterType.NONE;
+        }
+    }
+);
+</script>
+
 <template>
     <div class="max-w-[740px] mx-auto">
         <Button @click="openEditForm = true">Ajouter</Button>
@@ -106,86 +185,3 @@
         <AddChildForm :key="childToEdit?.id ?? new Date().getTime()" v-model:open="openEditForm" :child="childToEdit" />
     </div>
 </template>
-
-<script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
-
-import AddChildForm from '@/components/AddChildForm.vue';
-import { Button } from '@/components/ui/button';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { StatusEmployeeOrChild } from '@/store';
-import { Child, useChildStore } from '@/store/childStore';
-import Input from '@/components/ui/input/Input.vue';
-const { children, getStatusChild } = useChildStore();
-
-enum SortType {
-    NAME = 'name',
-    STATUS = 'status',
-    HOURS = 'hours',
-    NONE = 'none',
-}
-enum FilterType {
-    STATUS = 'status',
-    NONE = 'none',
-}
-
-enum Sort {
-    ASC = 'asc',
-    DESC = 'desc',
-}
-const search = ref('');
-const currentSortType = ref<SortType>(SortType.NONE);
-const currentFilterType = ref<FilterType>(FilterType.NONE);
-const currentFilter = ref<StatusEmployeeOrChild[]>([]);
-const currentSort = ref<Sort>(Sort.ASC);
-const childrenFiltered = computed(() => {
-    let currentChildrenList = [...children];
-    if (search.value) {
-        currentChildrenList = currentChildrenList.filter((child) => child.name.toLowerCase().includes(search.value.toLowerCase()));
-    }
-    if (currentFilterType.value !== FilterType.NONE) {
-        currentChildrenList = currentChildrenList.filter((child) => currentFilter.value?.includes(child.status));
-    }
-    if (currentSortType.value === SortType.NONE) {
-        return currentChildrenList;
-    }
-    switch (currentSortType.value) {
-        case SortType.NAME:
-            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
-        case SortType.STATUS:
-            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status)));
-        case SortType.HOURS:
-            return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.total - b.total : b.total - a.total));
-    }
-    return currentChildrenList;
-});
-const openEditForm = ref(false);
-const childToEdit = ref<Child>();
-watch(openEditForm, (v) => {
-    if (!v) {
-        childToEdit.value = undefined;
-    }
-});
-const totalHoursPerDays = (start: string, end: string) => {
-    if (start && end) {
-        const [startHour, startMinute] = start.split(':').map(Number);
-        const [endHour, endMinute] = end.split(':').map(Number);
-        return endHour - startHour + (endMinute - startMinute) / 60;
-    }
-    return '';
-};
-watch(
-    () => currentFilter.value.length,
-    (v) => {
-        if (v === 0) {
-            currentFilterType.value = FilterType.NONE;
-        }
-    }
-);
-</script>
-
-<style scoped>
-/* Ajoute des styles ici */
-</style>

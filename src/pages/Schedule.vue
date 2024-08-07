@@ -8,7 +8,7 @@ import TableHoursPerWeek from '@/components/TableHoursPerWeek.vue';
 import { Button } from '@/components/ui/button';
 
 import { ref, watch } from 'vue';
-import { Days } from '@/store';
+import { Days } from '@/store/employeeStore';
 import AddEmployeeSchedule from '@/components/AddEmployeeSchedule.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { storeToRefs } from 'pinia';

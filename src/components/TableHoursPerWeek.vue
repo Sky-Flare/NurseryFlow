@@ -3,7 +3,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 const employeeSelected = defineModel<number>('employeeSelected');
 import { computed } from 'vue';
 import { useScheduleStore } from '@/store/scheduleStore';
-import { Employee, useEmployeeStore } from '@/store';
+import { Employee, useEmployeeStore } from '@/store/employeeStore';
 import AddEmployeeForm from '@/components/AddEmployeeForm.vue';
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';

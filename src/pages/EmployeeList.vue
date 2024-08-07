@@ -1,3 +1,74 @@
+<script lang="ts" setup>
+import { computed, ref, watch } from 'vue';
+import { Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store/employeeStore';
+
+import AddEmployeeForm from '@/components/AddEmployeeForm.vue';
+import { Button } from '@/components/ui/button';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Input from '@/components/ui/input/Input.vue';
+const { getStatusEmployee, employees } = useEmployeeStore();
+
+enum SortType {
+    NAME = 'name',
+    STATUS = 'status',
+    HOURS = 'hours',
+    NONE = 'none',
+}
+enum FilterType {
+    STATUS = 'status',
+    NONE = 'none',
+}
+
+enum Sort {
+    ASC = 'asc',
+    DESC = 'desc',
+}
+const search = ref('');
+const currentSortType = ref<SortType>(SortType.NONE);
+const currentFilterType = ref<FilterType>(FilterType.NONE);
+const currentFilter = ref<StatusEmployeeOrChild[]>([]);
+const currentSort = ref<Sort>(Sort.ASC);
+const employeesFiltered = computed(() => {
+    let currentEmployeeList = [...employees];
+    if (search.value) {
+        currentEmployeeList = currentEmployeeList.filter((e) => e.name.toLowerCase().includes(search.value.toLowerCase()));
+    }
+    if (currentFilterType.value !== FilterType.NONE) {
+        currentEmployeeList = currentEmployeeList.filter((e) => currentFilter.value?.includes(e.status));
+    }
+    if (currentSortType.value === SortType.NONE) {
+        return currentEmployeeList;
+    }
+    switch (currentSortType.value) {
+        case SortType.NAME:
+            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
+        case SortType.STATUS:
+            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status)));
+        case SortType.HOURS:
+            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.hoursPerWeek - b.hoursPerWeek : b.hoursPerWeek - a.hoursPerWeek));
+    }
+    return currentEmployeeList;
+});
+
+const openEditForm = ref(false);
+const employeeToEdit = ref<Employee['id']>();
+watch(openEditForm, (v) => {
+    if (!v) {
+        employeeToEdit.value = undefined;
+    }
+});
+watch(
+    () => currentFilter.value.length,
+    (v) => {
+        if (v === 0) {
+            currentFilterType.value = FilterType.NONE;
+        }
+    }
+);
+</script>
+
 <template>
     <div class="max-w-[740px] mx-auto">
         <Button @click="openEditForm = true">Ajouter</Button>
@@ -95,78 +166,3 @@
         <add-employee-form :key="employeeToEdit ?? openEditForm.toString()" v-model:open="openEditForm" :id-employee="employeeToEdit" />
     </div>
 </template>
-
-<script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
-import { Employee, StatusEmployeeOrChild, useEmployeeStore } from '../store/index';
-
-import AddEmployeeForm from '@/components/AddEmployeeForm.vue';
-import { Button } from '@/components/ui/button';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import Input from '@/components/ui/input/Input.vue';
-const { getStatusEmployee, employees } = useEmployeeStore();
-
-enum SortType {
-    NAME = 'name',
-    STATUS = 'status',
-    HOURS = 'hours',
-    NONE = 'none',
-}
-enum FilterType {
-    STATUS = 'status',
-    NONE = 'none',
-}
-
-enum Sort {
-    ASC = 'asc',
-    DESC = 'desc',
-}
-const search = ref('');
-const currentSortType = ref<SortType>(SortType.NONE);
-const currentFilterType = ref<FilterType>(FilterType.NONE);
-const currentFilter = ref<StatusEmployeeOrChild[]>([]);
-const currentSort = ref<Sort>(Sort.ASC);
-const employeesFiltered = computed(() => {
-    let currentEmployeeList = [...employees];
-    if (search.value) {
-        currentEmployeeList = currentEmployeeList.filter((e) => e.name.toLowerCase().includes(search.value.toLowerCase()));
-    }
-    if (currentFilterType.value !== FilterType.NONE) {
-        currentEmployeeList = currentEmployeeList.filter((e) => currentFilter.value?.includes(e.status));
-    }
-    if (currentSortType.value === SortType.NONE) {
-        return currentEmployeeList;
-    }
-    switch (currentSortType.value) {
-        case SortType.NAME:
-            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
-        case SortType.STATUS:
-            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status)));
-        case SortType.HOURS:
-            return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.hoursPerWeek - b.hoursPerWeek : b.hoursPerWeek - a.hoursPerWeek));
-    }
-    return currentEmployeeList;
-});
-
-const openEditForm = ref(false);
-const employeeToEdit = ref<Employee['id']>();
-watch(openEditForm, (v) => {
-    if (!v) {
-        employeeToEdit.value = undefined;
-    }
-});
-watch(
-    () => currentFilter.value.length,
-    (v) => {
-        if (v === 0) {
-            currentFilterType.value = FilterType.NONE;
-        }
-    }
-);
-</script>
-
-<style scoped>
-/* Ajoute des styles ici */
-</style>

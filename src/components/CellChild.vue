@@ -1,22 +1,3 @@
-<template>
-    <div
-        v-if="timeChild.number && isDateBetween.active"
-        class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
-        :class="[
-            { 'bg-blue-400': isDateBetween.active },
-            {
-                'rounded-l-[8px]': isDateBetween.start,
-            },
-            {
-                'rounded-r-[8px]': isDateBetween.end,
-            },
-        ]"
-    >
-        <div v-if="isDateBetween.start" class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white">👶 {{ timeChild.number }}</div>
-        <div v-if="!isok" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">🚨</div>
-    </div>
-</template>
-
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { Hour } from '@/store/scheduleStore';
@@ -56,3 +37,22 @@ const isDateBetween = computed(() => ({
     active: props.currentTime >= props.timeChild.start && props.currentTime < props.timeChild.end,
 }));
 </script>
+
+<template>
+    <div
+        v-if="timeChild.number && isDateBetween.active"
+        class="w-full h-[15px] font-bold overflow-visible absolute -top-4"
+        :class="[
+            { 'bg-blue-400': isDateBetween.active },
+            {
+                'rounded-l-[8px]': isDateBetween.start,
+            },
+            {
+                'rounded-r-[8px]': isDateBetween.end,
+            },
+        ]"
+    >
+        <div v-if="isDateBetween.start" class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white">👶 {{ timeChild.number }}</div>
+        <div v-if="!isok" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">🚨</div>
+    </div>
+</template>

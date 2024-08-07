@@ -2,7 +2,7 @@
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import { Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store';
+import { Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store/employeeStore';
 import { Button } from '@/components/ui/button';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';

@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { computed, ref, watch } from 'vue';
-import { Days, Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store';
+import { Days, Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store/employeeStore';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { storeToRefs } from 'pinia';
 

@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { StatusEmployeeOrChild } from '@/store/index';
+import { StatusEmployeeOrChild } from '@/store/employeeStore';
 
 export interface Employee {
     name: string;

@@ -1,32 +1,5 @@
-<template>
-    <div
-        v-if="isDateBetween.active || (firstHours && isDateBetwennOtherHours === 0)"
-        class="w-full h-[24px] relative overflow-visible"
-        :draggable="isDateBetween.active"
-        :class="[
-            {
-                'rounded-l-[8px]': isDateBetween.start,
-            },
-            {
-                'rounded-r-[8px]': isDateBetween.end,
-            },
-            {
-                '!cursor-ew-resize': isDateBetween.start || isDateBetween.end,
-            },
-            isDateBetween.active ? `${dayEmployee.name}-${day} cursor-grab active:cursor-grabbing` : employeeDisplay ? 'hover:bg-red-200' : 'hover:bg-blue-200',
-            isDateBetween.active && (!employeeSelected || employeeSelected === dayEmployee.id) ? (employeeDisplay ? 'bg-red-400' : 'bg-blue-400') : '',
-            isDateBetween.start || isDateBetween.end ? (employeeDisplay ? 'hover:bg-red-500' : 'hover:bg-blue-500') : null,
-        ]"
-        @dragstart="startDrag"
-        @click.stop.prevent="!isDateBetween.active ? scheduleStore.addHoursOfDay(dayEmployee, day, currentTime.getTime()) : deleteHour()"
-    >
-        <div v-if="isDateBetween.start && (!employeeSelected || employeeSelected === dayEmployee.id)" class="capitalize w-max pl-2 absolute left-0 z-[1] text-white">
-            {{ dayEmployee.name }} {{ timeEmployee.total }}
-        </div>
-    </div>
-</template>
 <script lang="ts" setup>
-import { ArrayElement } from '@/store';
+import { ArrayElement } from '@/store/employeeStore';
 import { computed } from 'vue';
 import { Hour, useScheduleStore } from '@/store/scheduleStore';
 import { currentDrag } from '@/store/useDragAndDrop';
@@ -65,7 +38,7 @@ const isDateBetwennOtherHours = computed(() => {
     return s;
 });
 
-function startDrag() {
+const startDrag = () => {
     currentDrag.value = {
         itemID: props.dayEmployee.name,
         start: props.timeEmployee.start.toString(),
@@ -77,11 +50,39 @@ function startDrag() {
         currentDate: props.currentTime.toString(),
         hourId: props.timeEmployee.id.toString(),
     };
-}
+};
 
-function deleteHour() {
+const deleteHour = () => {
     if (window.confirm(`Souhaitez-vous vraiment supprimer ${props.dayEmployee.name} le ${props.day}`)) {
         scheduleStore.deleteHour(props.day, props.dayEmployee.name, props.timeEmployee.id);
     }
-}
+};
 </script>
+
+<template>
+    <div
+        v-if="isDateBetween.active || (firstHours && isDateBetwennOtherHours === 0)"
+        class="w-full h-[24px] relative overflow-visible"
+        :draggable="isDateBetween.active"
+        :class="[
+            {
+                'rounded-l-[8px]': isDateBetween.start,
+            },
+            {
+                'rounded-r-[8px]': isDateBetween.end,
+            },
+            {
+                '!cursor-ew-resize': isDateBetween.start || isDateBetween.end,
+            },
+            isDateBetween.active ? `${dayEmployee.name}-${day} cursor-grab active:cursor-grabbing` : employeeDisplay ? 'hover:bg-red-200' : 'hover:bg-blue-200',
+            isDateBetween.active && (!employeeSelected || employeeSelected === dayEmployee.id) ? (employeeDisplay ? 'bg-red-400' : 'bg-blue-400') : '',
+            isDateBetween.start || isDateBetween.end ? (employeeDisplay ? 'hover:bg-red-500' : 'hover:bg-blue-500') : null,
+        ]"
+        @dragstart="startDrag"
+        @click.stop.prevent="!isDateBetween.active ? scheduleStore.addHoursOfDay(dayEmployee, day, currentTime.getTime()) : deleteHour()"
+    >
+        <div v-if="isDateBetween.start && (!employeeSelected || employeeSelected === dayEmployee.id)" class="capitalize w-max pl-2 absolute left-0 z-[1] text-white">
+            {{ dayEmployee.name }} {{ timeEmployee.total }}
+        </div>
+    </div>
+</template>
