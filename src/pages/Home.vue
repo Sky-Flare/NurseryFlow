@@ -46,6 +46,7 @@ watch(selectedDate, () => {
         <div class="cursor-pointer flex items-center justify-start text-xl gap-4" @click="scheduleStore.toggleUserTypeDisplayed()">
             <font-awesome-icon
                 v-for="icon in ['user', 'baby']"
+                :key="icon"
                 :class="(!employeeDisplay && icon === 'baby') || (employeeDisplay && icon === 'user') ? 'text-primary' : 'text-gray-400'"
                 :icon="['fas', icon]"
             />

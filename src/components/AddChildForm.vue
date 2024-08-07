@@ -20,7 +20,6 @@ const { toast } = useToast();
 const days: Days[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const { updateChild, addChild, getStatusChild } = useChildStore();
 
-// Génération des options de temps
 const timeOptions: string[] = [''];
 const startHour = 7;
 const endHour = 18;
@@ -32,7 +31,6 @@ for (let hour = startHour; hour <= endHour; hour++) {
     }
 }
 
-// Correction pour ajouter 18:30 si nécessaire
 if (!timeOptions.includes('18:30')) {
     timeOptions.push('18:30');
 }
@@ -40,11 +38,11 @@ const formSchema = toTypedSchema(
     z.object({
         username: z.string().min(2).max(50),
         hours: z.record(
-            z.string(),
+            z.enum(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
             z.object({
                 start: z.string(),
                 end: z.string(),
-                total: z.number(),
+                total: z.union([z.number(), z.string()]),
             })
         ),
         status: z.nativeEnum(StatusEmployeeOrChild),
@@ -64,48 +62,48 @@ const { handleSubmit, values, errors } = useForm({
                     total: props.child?.total ?? 0,
                 },
             ])
-        ),
+        ) as Record<Days, HoursArray>,
         status: props.child?.status ?? StatusEmployeeOrChild.WORKING,
     },
 });
-
 const generateTimeSlots = (start: string, end: string) => {
-    // Convertir les heures et minutes en nombres
-    const [startHour, startMinute] = start.split(':').map(Number);
-    const [endHour, endMinute] = end.split(':').map(Number);
-
-    // Initialiser le tableau de créneaux avec des 0
+    const [startHourSlot, startMinute] = start.split(':').map(Number);
+    const [endHourSlot, endMinute] = end.split(':').map(Number);
     const slots = Array(21).fill(0);
-    // Calculer les indices de début et de fin dans le tableau
-    const startIndex = (startHour - 7) * 2 + startMinute / 30 - 1;
-    const endIndex = (endHour - 7) * 2 + endMinute / 30 - 1;
-
-    // Remplir les créneaux avec des 1 entre startIndex et endIndex
+    const startIndex = (startHourSlot - 7) * 2 + startMinute / 30 - 1;
+    const endIndex = (endHourSlot - 7) * 2 + endMinute / 30 - 1;
     for (let i = startIndex; i < endIndex; i++) {
         slots[i] = 1;
     }
 
-    return slots;
+    return slots as number[];
 };
-
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit((currentValues) => {
     const updatedHours = {} as Record<string, number[]>;
-    days.forEach((day) => {
-        const { start, end } = values.hours[day];
-        console.log(day, start, end);
+    days.forEach((day: Days) => {
+        if (!currentValues.hours[day]) {
+            return;
+        }
+        const { start, end } = currentValues.hours[day];
         updatedHours[day] = generateTimeSlots(start, end);
     });
-    const finalHours: Record<Days, HoursArray> = values.hours;
-    for (const [key, value] of Object.entries(values.hours)) {
+    const finalHours: Record<Days, HoursArray> = currentValues.hours as Record<Days, HoursArray>;
+    for (const [key, value] of Object.entries(currentValues.hours as Record<Days, HoursArray>) as [Days, HoursArray][]) {
+        if (!finalHours[key]) {
+            return;
+        }
         finalHours[key].start = value.start;
         finalHours[key].end = value.end;
         finalHours[key].total = totalHoursPerDays(key);
     }
+    if (!currentValues.username || !currentValues.status) {
+        return;
+    }
     const child: Omit<Child, 'id'> = {
-        name: values.username,
+        name: currentValues.username,
         hours: finalHours,
         total: totalHoursPerWeek.value,
-        status: values.status,
+        status: currentValues.status,
     };
 
     if (props.child) {
@@ -113,7 +111,6 @@ const onSubmit = handleSubmit((values) => {
     } else {
         addChild(child);
     }
-    console.log(child);
     toast({
         title: props.child ? "Profil de l'enfant modifié" : 'Enfant ajouté',
         description: `Nom: ${child.name}, Total d'heures: ${totalHoursPerWeek.value}`,
@@ -123,11 +120,11 @@ const onSubmit = handleSubmit((values) => {
 
 const totalHoursPerDays = (d: Days) => {
     if (values.hours?.[d]) {
-        const { start, end } = values.hours?.[d];
+        const { start, end } = values.hours[d];
         if (start && end) {
-            const [startHour, startMinute] = start.split(':').map(Number);
-            const [endHour, endMinute] = end.split(':').map(Number);
-            return endHour - startHour + (endMinute - startMinute) / 60;
+            const [valueStartH, startMinute] = start.split(':').map(Number);
+            const [valueEndHour, endMinute] = end.split(':').map(Number);
+            return valueEndHour - valueStartH + (endMinute - startMinute) / 60;
         }
         return '';
     }
@@ -140,9 +137,9 @@ const totalHoursPerWeek = computed(() => {
         const start = values.hours?.[day]?.start;
         const end = values.hours?.[day]?.end;
         if (start && end) {
-            const [startHour, startMinute] = start.split(':').map(Number);
-            const [endHour, endMinute] = end.split(':').map(Number);
-            total += endHour - startHour + (endMinute - startMinute) / 60;
+            const [currentStartHour, startMinute] = start.split(':').map(Number);
+            const [currentEndHour, endMinute] = end.split(':').map(Number);
+            total += currentEndHour - currentStartHour + (endMinute - startMinute) / 60;
         }
     }
     return total;
@@ -211,7 +208,7 @@ const totalHoursPerWeek = computed(() => {
                                     </FormControl>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectItem v-for="status in StatusEmployeeOrChild" :value="status">
+                                            <SelectItem v-for="status in StatusEmployeeOrChild" :key="status" :value="status">
                                                 {{ getStatusChild(status).label }}
                                                 {{ getStatusChild(status).icon }}
                                             </SelectItem>

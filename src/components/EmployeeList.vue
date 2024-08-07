@@ -8,13 +8,15 @@
             <div class="flex gap-2">
                 <Button
                     v-for="s in StatusEmployeeOrChild"
-                    :variant="!currentFilter?.includes(s) ? 'outline' : ''"
+                    :key="s"
+                    :variant="!currentFilter?.includes(s) ? 'outline' : 'default'"
                     @click="
                         currentFilter.includes(s) ? (currentFilter = currentFilter.filter((f) => f !== s)) : currentFilter.push(s);
                         currentFilterType = FilterType.STATUS;
                     "
-                    >{{ getStatusEmployee(s).icon }}</Button
                 >
+                    {{ getStatusEmployee(s).icon }}
+                </Button>
             </div>
         </div>
         <Table>
@@ -145,6 +147,7 @@ const employeesFiltered = computed(() => {
         case SortType.HOURS:
             return currentEmployeeList.sort((a, b) => (currentSort.value === Sort.ASC ? a.hoursPerWeek - b.hoursPerWeek : b.hoursPerWeek - a.hoursPerWeek));
     }
+    return currentEmployeeList;
 });
 
 const openEditForm = ref(false);

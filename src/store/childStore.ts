@@ -183,8 +183,6 @@ export const useChildStore = defineStore('child', () => {
                 return { label: 'Créche', icon: '🚼️' };
             case StatusEmployeeOrChild.VACATION:
                 return { label: 'Vacances', icon: '🏝️' };
-            default:
-                return '';
         }
     }
 

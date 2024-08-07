@@ -9,7 +9,7 @@
                 <Button
                     v-for="(s, index) in StatusEmployeeOrChild"
                     :key="index"
-                    :variant="!currentFilter?.includes(s) ? 'outline' : ''"
+                    :variant="!currentFilter?.includes(s) ? 'outline' : 'default'"
                     @click="
                         currentFilter.includes(s) ? (currentFilter = currentFilter.filter((f) => f !== s)) : currentFilter.push(s);
                         currentFilterType = FilterType.STATUS;
@@ -65,7 +65,7 @@
                     </TableCell>
                     <TableCell class="text-center flex items-center justify-center gap-4">
                         <div class="flex flex-col items-start">
-                            <div v-for="(item, key) in child.hours">
+                            <div v-for="(item, key) in child.hours" :key="key">
                                 {{ key }}
                             </div>
                         </div>
@@ -115,10 +115,9 @@ import { Button } from '@/components/ui/button';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { StatusEmployeeOrChild, useEmployeeStore } from '@/store';
+import { StatusEmployeeOrChild } from '@/store';
 import { Child, useChildStore } from '@/store/childStore';
 import Input from '@/components/ui/input/Input.vue';
-const { updateEmployee, addEmployee } = useEmployeeStore();
 const { children, getStatusChild } = useChildStore();
 
 enum SortType {
@@ -160,6 +159,7 @@ const childrenFiltered = computed(() => {
         case SortType.HOURS:
             return currentChildrenList.sort((a, b) => (currentSort.value === Sort.ASC ? a.total - b.total : b.total - a.total));
     }
+    return currentChildrenList;
 });
 const openEditForm = ref(false);
 const childToEdit = ref<Child>();

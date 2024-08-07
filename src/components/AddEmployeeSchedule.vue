@@ -4,21 +4,23 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { computed, ref, watch } from 'vue';
 import { Days, Employee, StatusEmployeeOrChild, useEmployeeStore } from '@/store';
 import { useScheduleStore } from '@/store/scheduleStore';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{ date: Date }>();
 const { employees } = useEmployeeStore();
 const DaysSchedule = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const { schedule, getTimeSlot, addEmployeeOfOneDay } = useScheduleStore();
+const scheduleStore = useScheduleStore();
+const { schedule } = storeToRefs(scheduleStore);
 const employeeSelected = ref<Employee>();
 const openDialogAddEmployee = ref(false);
 
 const avaibilityEmployeeForCurrentDay = computed(() => {
-    const employeesAlreadyInDay = schedule[DaysSchedule[props.date?.getDay() as Days]]?.employee.map((e) => e.name) ?? [];
+    const employeesAlreadyInDay = schedule.value?.[DaysSchedule[props.date?.getDay()] as Days]?.employee.map((e) => e.name) ?? [];
     return employees?.filter((e) => !employeesAlreadyInDay?.includes(e.name) && e.status === StatusEmployeeOrChild.WORKING);
 });
 watch(employeeSelected, () => {
     if (employeeSelected.value?.id && props.date) {
-        addEmployeeOfOneDay(employeeSelected.value?.id, DaysSchedule[props.date?.getDay()] as Days);
+        scheduleStore.addEmployeeOfOneDay(employeeSelected.value?.id, DaysSchedule[props.date?.getDay()] as Days);
         openDialogAddEmployee.value = false;
         employeeSelected.value = undefined;
     }
@@ -34,7 +36,7 @@ watch(employeeSelected, () => {
             </DialogHeader>
             <div class="grid grid-cols-4 items-center gap-4">
                 <select v-model="employeeSelected" class="bg-background text-foreground capitalize">
-                    <option v-for="time in avaibilityEmployeeForCurrentDay" :key="time" :value="time">
+                    <option v-for="time in avaibilityEmployeeForCurrentDay" :key="time.id" :value="time">
                         {{ time.name }}
                     </option>
                 </select>

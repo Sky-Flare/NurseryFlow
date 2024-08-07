@@ -19,7 +19,7 @@ export const useDragAndDrop = () => {
     const ScheduleStore = useScheduleStore();
     const { schedule, employeeDisplay } = storeToRefs(ScheduleStore);
 
-    const interval = ref();
+    const timeoutLeaveDrop = ref<ReturnType<typeof setInterval>>();
 
     function onLeave(event: DragEvent) {
         event.stopPropagation();
@@ -28,7 +28,7 @@ export const useDragAndDrop = () => {
             return;
         }
 
-        clearInterval(interval.value);
+        clearTimeout(timeoutLeaveDrop.value);
 
         const { itemID } = currentDrag.value;
         const { start } = currentDrag.value;
@@ -38,7 +38,7 @@ export const useDragAndDrop = () => {
         if (!day) {
             return;
         }
-        interval.value = setTimeout(() => {
+        timeoutLeaveDrop.value = setTimeout(() => {
             let currentEmployee;
             if (employeeDisplay.value) {
                 currentEmployee = schedule.value?.[day]?.employee?.find((el: Hour) => el.name === itemID) as Hour;
@@ -68,7 +68,7 @@ export const useDragAndDrop = () => {
         if (currentTime.getDay() !== new Date(currentDrag.value.start).getDay()) {
             return;
         }
-        clearInterval(interval.value);
+        clearTimeout(timeoutLeaveDrop.value);
 
         const { itemID } = currentDrag.value;
         const { start } = currentDrag.value;

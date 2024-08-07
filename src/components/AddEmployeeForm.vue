@@ -40,7 +40,6 @@ const { handleSubmit } = useForm({
 });
 
 const onSubmit = handleSubmit((values) => {
-    console.log('onSubmit');
     const employee: Omit<Employee, 'id'> = {
         name: values.username,
         hoursPerWeek: values.hours,
@@ -114,7 +113,7 @@ const onSubmit = handleSubmit((values) => {
                                     </FormControl>
                                     <SelectContent>
                                         <SelectGroup>
-                                            <SelectItem v-for="s in StatusEmployeeOrChild" :value="s">
+                                            <SelectItem v-for="s in StatusEmployeeOrChild" :key="s" :value="s">
                                                 {{ getStatusEmployee(s).label }}
                                                 {{ getStatusEmployee(s).icon }}
                                             </SelectItem>

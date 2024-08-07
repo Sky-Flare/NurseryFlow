@@ -19,8 +19,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useScheduleStore } from '@/store/scheduleStore';
-const { schedule, addHoursOfDay } = useScheduleStore();
+import { Hour } from '@/store/scheduleStore';
 
 const props = defineProps<{
     currentTime: Date;
@@ -29,7 +28,7 @@ const props = defineProps<{
         start: Date;
         end: Date;
     };
-    dayEmployees: typeof schedule.Monday.employee;
+    dayEmployees: Hour[];
 }>();
 const nomberEmployeePresent = computed(() => {
     let nb = 0;

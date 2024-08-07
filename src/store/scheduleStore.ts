@@ -14,7 +14,7 @@ type TotalChildren = {
     end: Date;
 };
 
-type ScheduleItem = {
+export type ScheduleItem = {
     date: Date;
     employee: Hour[];
     children: Hour[];
@@ -36,7 +36,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     const generateScheduleLoading = ref(false);
     const employeeDisplay = ref(true);
 
-    const schedule = ref<Record<Partial<Days>, ScheduleItem>>();
+    const schedule = ref<Record<Days, ScheduleItem>>();
 
     // function generateSchedule(date: Date) {
     //     generateScheduleLoading.value = true;
@@ -263,7 +263,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     }
 
     function initializeSchedule(date: Date): Record<Days, ScheduleItem> {
-        return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].reduce(
+        return (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as Days[]).reduce(
             (acc, day, index) => {
                 const currentDate = new Date(new Date(new Date(date)).setHours(7, 30));
                 currentDate.setDate(currentDate.getDate() + index);
@@ -500,6 +500,9 @@ export const useScheduleStore = defineStore('schedule', () => {
 
     function addEmployeeOfOneDay(id: number, day: Days) {
         const currentDay = schedule.value?.[day].date;
+        if (!currentDay) {
+            return;
+        }
         const employee = employees.find((el) => el.id === id);
         const newHour = {
             name: employee?.name,

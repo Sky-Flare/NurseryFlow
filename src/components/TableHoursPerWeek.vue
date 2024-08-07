@@ -1,34 +1,43 @@
 <script setup lang="ts">
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-const employeeSelected = defineModel('employeeSelected');
+const employeeSelected = defineModel<number>('employeeSelected');
 import { computed } from 'vue';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { Employee, useEmployeeStore } from '@/store';
 import AddEmployeeForm from '@/components/AddEmployeeForm.vue';
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+
 const { employees } = useEmployeeStore();
 const scheduleStore = useScheduleStore();
+
 const { schedule } = storeToRefs(scheduleStore);
 const employeeToEdit = ref<Employee['id']>();
 const openEditForm = ref(false);
+
 watch(openEditForm, (v) => {
     if (!v) {
         employeeToEdit.value = undefined;
     }
 });
 
-const totalHoursPerWeek = computed(() =>
-    Object.values(
-        Object.values(schedule.value).reduce((acc, day) => {
+const totalHoursPerWeek = computed(() => {
+    if (!schedule.value) {
+        return [];
+    }
+    return Object.values(
+        Object.values(schedule.value).reduce((acc: Record<string, Employee & { totalHoursPerWeek: number }>, day) => {
             day.employee.forEach((employee) => {
                 if (!acc[employee.name]) {
-                    const e = employees.find((e) => e.id === employee.id);
-                    acc[employee.name] = {
-                        name: employee.name,
-                        totalHoursPerWeek: 0,
-                        ...e,
-                    };
+                    const e = employees.find((currentE) => currentE.id === employee.id);
+                    if (e && employee.name) {
+                        acc[employee.name] = {
+                            totalHoursPerWeek: 0,
+                            ...e,
+                        };
+                    } else {
+                        throw new Error('Employee not found');
+                    }
                 }
 
                 acc[employee.name].totalHoursPerWeek += employee.hours.reduce((sum, hour) => sum + hour.total, 0);
@@ -36,8 +45,8 @@ const totalHoursPerWeek = computed(() =>
 
             return acc;
         }, {})
-    )
-);
+    );
+});
 </script>
 
 <template>
@@ -55,7 +64,8 @@ const totalHoursPerWeek = computed(() =>
             </TableHeader>
             <TableBody>
                 <TableRow
-                    v-for="r in totalHoursPerWeek"
+                    v-for="(r, index) in totalHoursPerWeek"
+                    :key="index"
                     class="cursor-alias"
                     @click="
                         employeeToEdit = r.id;
