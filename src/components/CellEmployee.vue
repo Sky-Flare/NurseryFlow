@@ -2,7 +2,7 @@
 import { ArrayElement } from '@/store/employeeStore';
 import { computed } from 'vue';
 import { Hour, useScheduleStore } from '@/store/scheduleStore';
-import { currentDrag } from '@/store/useDragAndDrop';
+import { currentDrag } from '@/composable/useDragAndDrop';
 import { storeToRefs } from 'pinia';
 import { Days } from '@/store/childStore';
 

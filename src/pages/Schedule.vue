@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TimeBar from '@/components/TimeBar.vue';
 import CellEmployee from '@/components/CellEmployee.vue';
-import { useDragAndDrop } from '@/store/useDragAndDrop';
+import { useDragAndDrop } from '@/composable/useDragAndDrop';
 import { useScheduleStore } from '@/store/scheduleStore';
 import CellChild from '@/components/CellChild.vue';
 import TableHoursPerWeek from '@/components/TableHoursPerWeek.vue';
