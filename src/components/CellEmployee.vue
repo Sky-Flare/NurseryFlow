@@ -75,14 +75,12 @@ const deleteHour = () => {
                 '!cursor-ew-resize': isDateBetween.start || isDateBetween.end,
             },
             isDateBetween.active ? `${dayEmployee.name}-${day} cursor-grab active:cursor-grabbing` : employeeDisplay ? 'hover:bg-red-200' : 'hover:bg-blue-200',
-            isDateBetween.active && (!employeeSelected || employeeSelected === dayEmployee.id) ? (employeeDisplay ? 'bg-red-400' : 'bg-blue-400') : '',
+            isDateBetween.active ? (employeeDisplay ? (!employeeSelected || employeeSelected === dayEmployee.id ? 'bg-red-400' : 'bg-red-200') : 'bg-blue-400') : '',
             isDateBetween.start || isDateBetween.end ? (employeeDisplay ? 'hover:bg-red-500' : 'hover:bg-blue-500') : null,
         ]"
         @dragstart="startDrag"
         @click.stop.prevent="!isDateBetween.active ? scheduleStore.addHoursOfDay(dayEmployee, day, currentTime.getTime()) : deleteHour()"
     >
-        <div v-if="isDateBetween.start && (!employeeSelected || employeeSelected === dayEmployee.id)" class="capitalize w-max pl-2 absolute left-0 z-[1] text-white">
-            {{ dayEmployee.name }} {{ timeEmployee.total }}
-        </div>
+        <div v-if="isDateBetween.start" class="capitalize w-max pl-2 absolute left-0 z-[1] text-white">{{ dayEmployee.name }} {{ timeEmployee.total }}</div>
     </div>
 </template>

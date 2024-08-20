@@ -9,7 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { StatusEmployeeOrChild } from '@/store/employeeStore';
 import { Child, useChildStore } from '@/store/childStore';
 import Input from '@/components/ui/input/Input.vue';
+import { useToast } from '@/components/ui/toast';
 const { children, getStatusChild } = useChildStore();
+const { toast } = useToast();
 
 enum SortType {
     NAME = 'name',
@@ -54,11 +56,14 @@ const childrenFiltered = computed(() => {
 });
 const openEditForm = ref(false);
 const childToEdit = ref<Child>();
-watch(openEditForm, (v) => {
-    if (!v) {
-        childToEdit.value = undefined;
-    }
-});
+
+const save = () => {
+    localStorage.setItem('children', JSON.stringify(childrenFiltered.value));
+    toast({
+        description: 'Enfants enregistrés',
+    });
+};
+
 const totalHoursPerDays = (start: string, end: string) => {
     if (start && end) {
         const [startHour, startMinute] = start.split(':').map(Number);
@@ -67,6 +72,13 @@ const totalHoursPerDays = (start: string, end: string) => {
     }
     return '';
 };
+
+watch(openEditForm, (v) => {
+    if (!v) {
+        childToEdit.value = undefined;
+    }
+});
+
 watch(
     () => currentFilter.value.length,
     (v) => {
@@ -184,4 +196,5 @@ watch(
     <div class="flex gap-2 flex-wrap">
         <AddChildForm :key="childToEdit?.id ?? new Date().getTime()" v-model:open="openEditForm" :child="childToEdit" />
     </div>
+    <Button class="block mx-auto my-12" @click="save">Enregistrer</Button>
 </template>

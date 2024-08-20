@@ -86,7 +86,7 @@ const onSubmit = handleSubmit((values) => {
                             <FormItem>
                                 <FormLabel>Nombre d'heures par semaine</FormLabel>
                                 <FormControl>
-                                    <Input type="number" placeholder="35" v-bind="componentField" />
+                                    <Input type="number" step="0.5" placeholder="35" v-bind="componentField" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

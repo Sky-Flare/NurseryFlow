@@ -7,11 +7,12 @@ import CellChild from '@/components/CellChild.vue';
 import TableHoursPerWeek from '@/components/TableHoursPerWeek.vue';
 import { Button } from '@/components/ui/button';
 
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { Days } from '@/store/employeeStore';
 import AddEmployeeSchedule from '@/components/AddEmployeeSchedule.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { storeToRefs } from 'pinia';
+import { useToast } from '@/components/ui/toast';
 
 const scheduleStore = useScheduleStore();
 const { employeeDisplay, schedule, generateScheduleLoading } = storeToRefs(scheduleStore);
@@ -20,6 +21,69 @@ const { onDrop, onLeave } = useDragAndDrop();
 const selectedDate = ref<Date>();
 const errorNotMonday = ref(false);
 const employeeSelected = ref<number>();
+const allSchedules = ref<Record<string, typeof schedule.value>>();
+const { toast } = useToast();
+
+onMounted(() => {
+    const storedSchedule = JSON.parse(localStorage.getItem('schedules') ?? 'null', (_, value) => {
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
+            return new Date(value);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return value;
+    }) as Record<string, typeof schedule.value>;
+    if (!Object.keys(storedSchedule).length) {
+        return;
+    }
+    allSchedules.value = storedSchedule;
+});
+
+const save = () => {
+    if (!schedule.value?.Monday.date) {
+        toast({
+            title: "Erreur d'enregistrement",
+            description: 'Pas de planning à enregistrer',
+            variant: 'destructive',
+        });
+        return;
+    }
+    const name = prompt("Nom de l'enregistrement", `${new Date(schedule.value.Monday.date).toLocaleString()}`);
+    if (!name) {
+        toast({
+            title: "Erreur d'enregistrement",
+            description: "Enregistrement annulé ou pas de nom d'enregistrement",
+            variant: 'destructive',
+        });
+        return;
+    }
+    toast({
+        title: 'Planning enregistré',
+        description: `Planning enregistré ${name}`,
+    });
+    allSchedules.value = { ...allSchedules.value, [name]: schedule.value };
+    localStorage.setItem('schedules', JSON.stringify(allSchedules.value));
+};
+
+const deleteScheduleItem = (k: string) => {
+    if (!allSchedules.value) {
+        return;
+    }
+    if (window.confirm(`Souhaitez-vous vraiment supprimer le planning ${k}`)) {
+        if (allSchedules.value[k]) {
+            delete allSchedules.value[k];
+            localStorage.setItem('schedules', JSON.stringify(allSchedules.value));
+        } else {
+            toast({
+                title: 'Erreur de suppression',
+                description: `Le planning ${k} n'existe pas`,
+                variant: 'destructive',
+            });
+        }
+        if (allSchedules.value && Object.keys(allSchedules.value).length === 0) {
+            allSchedules.value = undefined;
+        }
+    }
+};
 
 watch(selectedDate, () => {
     errorNotMonday.value = false;
@@ -33,6 +97,15 @@ watch(selectedDate, () => {
 </script>
 <template>
     <div v-if="!schedule" class="h-full w-full flex flex-col items-center justify-center gap-4 pt-8">
+        <div v-if="allSchedules">
+            Planning déja enregistré :
+            <ul>
+                <li v-for="(s, k) in allSchedules" :key="k" class="gap-2 flex items-center justify-start">
+                    <span class="cursor-pointer" @click="schedule = s">{{ k }}</span>
+                    <font-awesome-icon :icon="['fas', 'trash']" class="cursor-pointer size-3 text-xs rounded-full p-1 bg-red-400 text-white" @click="deleteScheduleItem(k)" />
+                </li>
+            </ul>
+        </div>
         <p :class="{ 'text-destructive': errorNotMonday }">Selectionner un lundi</p>
         <div class="border rounded cursor-pointer w-fit">
             <input v-model="selectedDate" class="cursor-pointer input-date text-foreground bg-background" type="date" @click="errorNotMonday = false" />
@@ -93,6 +166,8 @@ watch(selectedDate, () => {
 
             <table-hours-per-week v-model:employee-selected="employeeSelected" />
         </div>
+
+        <Button class="block mx-auto my-12" @click="save">Enregistrer</Button>
     </div>
 </template>
 

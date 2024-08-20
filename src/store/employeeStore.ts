@@ -22,50 +22,7 @@ export interface Child {
 }
 
 export const useEmployeeStore = defineStore('employee', () => {
-    const employees = ref<Employee[]>([
-        {
-            name: 'marine',
-            hoursPerWeek: 35,
-            daysOff: ['Wednesday'],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 1,
-        },
-        {
-            name: 'fanny',
-            hoursPerWeek: 35,
-            daysOff: ['Monday'],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 2,
-        },
-        {
-            name: 'roxanne',
-            hoursPerWeek: 35,
-            daysOff: ['Tuesday'],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 3,
-        },
-        {
-            name: 'Sandrine',
-            hoursPerWeek: 35,
-            daysOff: ['Friday'],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 4,
-        },
-        {
-            name: 'Sophie',
-            hoursPerWeek: 20,
-            daysOff: [],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 1722459857100,
-        },
-        {
-            name: 'Lise',
-            hoursPerWeek: 15,
-            daysOff: ['Thursday'],
-            status: StatusEmployeeOrChild.WORKING,
-            id: 1722459876115,
-        },
-    ]);
+    const employees = ref<Employee[]>(JSON.parse(localStorage.getItem('employees') ?? '[]') as Employee[]);
 
     function addEmployee(employee: Omit<Employee, 'id'>) {
         employees.value.push({ ...employee, id: new Date().getTime() });

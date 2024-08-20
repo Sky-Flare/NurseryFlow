@@ -22,15 +22,17 @@ const nomberEmployeePresent = computed(() => {
     });
     return nb;
 });
-const isok = computed(() => {
+
+const nbEmployeeMoreOrLess = computed(() => {
     if (props.timeChild.number <= 3) {
-        return nomberEmployeePresent.value > 0;
+        return nomberEmployeePresent.value - 1;
     } else if (props.timeChild.number <= 13) {
-        return nomberEmployeePresent.value > 1;
+        return nomberEmployeePresent.value - 2;
     } else {
-        return nomberEmployeePresent.value > 3;
+        return nomberEmployeePresent.value - 4;
     }
 });
+
 const isDateBetween = computed(() => ({
     start: props.currentTime.getTime() === props.timeChild.start.getTime(),
     end: props.currentTime.getTime() === new Date(props.timeChild.end.getTime() - 30 * 60000).getTime(),
@@ -53,6 +55,6 @@ const isDateBetween = computed(() => ({
         ]"
     >
         <div v-if="isDateBetween.start" class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white">👶 {{ timeChild.number }}</div>
-        <div v-if="!isok" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">🚨</div>
+        <div v-if="nbEmployeeMoreOrLess !== 0" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">{{ nbEmployeeMoreOrLess < 0 ? '🚨' : nbEmployeeMoreOrLess }}</div>
     </div>
 </template>

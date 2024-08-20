@@ -8,7 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Input from '@/components/ui/input/Input.vue';
+import { useToast } from '@/components/ui/toast';
 const { getStatusEmployee, employees } = useEmployeeStore();
+const { toast } = useToast();
 
 enum SortType {
     NAME = 'name',
@@ -25,11 +27,13 @@ enum Sort {
     ASC = 'asc',
     DESC = 'desc',
 }
+
 const search = ref('');
 const currentSortType = ref<SortType>(SortType.NONE);
 const currentFilterType = ref<FilterType>(FilterType.NONE);
 const currentFilter = ref<StatusEmployeeOrChild[]>([]);
 const currentSort = ref<Sort>(Sort.ASC);
+
 const employeesFiltered = computed(() => {
     let currentEmployeeList = [...employees];
     if (search.value) {
@@ -54,6 +58,14 @@ const employeesFiltered = computed(() => {
 
 const openEditForm = ref(false);
 const employeeToEdit = ref<Employee['id']>();
+
+const save = () => {
+    localStorage.setItem('employees', JSON.stringify(employeesFiltered.value));
+    toast({
+        description: 'Employés enregistrés',
+    });
+};
+
 watch(openEditForm, (v) => {
     if (!v) {
         employeeToEdit.value = undefined;
@@ -165,4 +177,6 @@ watch(
     <div class="flex gap-2 flex-wrap">
         <add-employee-form :key="employeeToEdit ?? openEditForm.toString()" v-model:open="openEditForm" :id-employee="employeeToEdit" />
     </div>
+
+    <Button class="block mx-auto my-12" @click="save">Enregistrer</Button>
 </template>

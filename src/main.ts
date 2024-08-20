@@ -9,10 +9,10 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 /* import font awesome icon component */
 
 /* import specific icons */
-import { faBaby, faPlus, faSortNumericDesc, faSpinner, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faBaby, faPlus, faSortNumericDesc, faSpinner, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
 import { faCircleHalfStroke, faSortAlphaAsc, faSortAlphaDesc, faSortNumericAsc, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 /* add icons to the library */
-library.add(faPlus, faCircleHalfStroke, faSortAlphaAsc, faSortAlphaDesc, faSortNumericAsc, faSortNumericDesc, faUserPlus, faBaby, faUser, faSpinner);
+library.add(faPlus, faTrash, faCircleHalfStroke, faSortAlphaAsc, faSortAlphaDesc, faSortNumericAsc, faSortNumericDesc, faUserPlus, faBaby, faUser, faSpinner);
 
 createApp(App).use(router).use(createPinia()).mount('#app');

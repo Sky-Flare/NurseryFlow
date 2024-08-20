@@ -85,7 +85,6 @@ function dispatch(action: Action) {
             break;
 
         case actionTypes.DISMISS_TOAST: {
-            console.log('DISMISS_TOAST');
             const { toastId } = action;
 
             if (toastId) {
