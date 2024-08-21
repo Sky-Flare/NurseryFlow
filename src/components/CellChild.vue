@@ -29,7 +29,7 @@ const nbEmployeeMoreOrLess = computed(() => {
     } else if (props.timeChild.number <= 13) {
         return nomberEmployeePresent.value - 2;
     } else {
-        return nomberEmployeePresent.value - 4;
+        return nomberEmployeePresent.value - 3;
     }
 });
 
