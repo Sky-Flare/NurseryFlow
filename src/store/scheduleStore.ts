@@ -8,7 +8,7 @@ export type Hour = {
     id: number;
     hours: { id: number; start: Date; end: Date; total: number }[];
 };
-type TotalChildren = {
+export type TotalChildren = {
     number: number;
     start: Date;
     end: Date;
@@ -133,20 +133,7 @@ export const useScheduleStore = defineStore('schedule', () => {
                 }
             });
 
-            if (currentNbChild !== 0 && currentStart && currentNbChild !== slot.children.length) {
-                totalChild.push({
-                    number: currentNbChild,
-                    start: currentStart,
-                    end: slot.date,
-                });
-                currentNbChild = slot.children.length;
-                currentStart = slot.date;
-            } else if (slot.children.length) {
-                if (!currentStart) {
-                    currentStart = slot.date;
-                }
-                currentNbChild = slot.children.length;
-            }
+            ({ currentNbChild, currentStart } = processSlotTotalChildren(slot, currentNbChild, currentStart, totalChild));
 
             slot.employeesNeeded = slot.children.length === 0 ? 0 : slot.children.length <= 3 ? 1 : slot.children.length >= 4 && slot.children.length <= 13 ? 2 : 3;
 
@@ -279,6 +266,30 @@ export const useScheduleStore = defineStore('schedule', () => {
         });
     }
 
+    function processSlotTotalChildren(
+        slot: { date: Date; children: Hour[] },
+        currentNbChild: number,
+        currentStart: Date | null,
+        totalChild: { number: number; start: Date; end: Date }[]
+    ): { currentNbChild: number; currentStart: Date | null } {
+        if (currentNbChild !== 0 && currentStart && currentNbChild !== slot.children.length) {
+            totalChild.push({
+                number: currentNbChild,
+                start: currentStart,
+                end: slot.date,
+            });
+            currentNbChild = slot.children.length;
+            currentStart = slot.date;
+        } else if (slot.children.length) {
+            if (!currentStart) {
+                currentStart = slot.date;
+            }
+            currentNbChild = slot.children.length;
+        }
+
+        return { currentNbChild, currentStart };
+    }
+
     function addHoursOfDay(employee: Hour, day: Days, currentTime: number) {
         const currentEmployee = schedule.value?.[day]?.employee.find((el) => el.name === employee.name);
         currentEmployee?.hours.push({
@@ -339,6 +350,7 @@ export const useScheduleStore = defineStore('schedule', () => {
 
     return {
         schedule,
+        processSlotTotalChildren,
         addHoursOfDay,
         getTimeSlot,
         addEmployeeOfOneDay,

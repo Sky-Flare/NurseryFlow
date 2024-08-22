@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { Hour, useScheduleStore } from '@/store/scheduleStore';
+import { Hour, TotalChildren, useScheduleStore } from '@/store/scheduleStore';
 import { storeToRefs } from 'pinia';
 import { Days } from '@/store/employeeStore';
 
@@ -30,10 +30,7 @@ export const useDragAndDrop = () => {
 
         clearTimeout(timeoutLeaveDrop.value);
 
-        const { itemID } = currentDrag.value;
-        const { start } = currentDrag.value;
-        const { end } = currentDrag.value;
-        const { day } = currentDrag.value;
+        const { itemID, start, end, day } = currentDrag.value;
 
         if (!day) {
             return;
@@ -50,7 +47,6 @@ export const useDragAndDrop = () => {
                 currentTime.start = new Date(start);
                 currentTime.end = new Date(end);
             }
-
             currentDrag.value = undefined;
         }, 300);
     }
@@ -70,14 +66,7 @@ export const useDragAndDrop = () => {
         }
         clearTimeout(timeoutLeaveDrop.value);
 
-        const { itemID } = currentDrag.value;
-        const { start } = currentDrag.value;
-        const { end } = currentDrag.value;
-        const { day } = currentDrag.value;
-        const { isStart } = currentDrag.value;
-        const { isEnd } = currentDrag.value;
-        const { currentDate } = currentDrag.value;
-        const { hourId } = currentDrag.value;
+        const { itemID, start, end, day, isStart, isEnd, currentDate, hourId } = currentDrag.value;
 
         let currentEmployee;
 
@@ -186,9 +175,39 @@ export const useDragAndDrop = () => {
             currentHour.start = newStart;
             currentHour.end = newEnd;
         }
+
         if (drop) {
+            if (!employeeDisplay.value) {
+                updateTotalChildrenSchedule(day);
+            }
             currentDrag.value = undefined;
         }
+    }
+
+    function updateTotalChildrenSchedule(day: Days) {
+        if (!schedule.value) {
+            return;
+        }
+        const slots = ScheduleStore.getTimeSlot(new Date(new Date(schedule.value[day].date).setHours(7, 30, 0)), 22).map((s) => ({
+            date: s,
+            children: [],
+        })) as { date: Date; children: Hour[] }[];
+        let currentNbChild = 0;
+        let currentStart: Date | null = null;
+        const totalChild: TotalChildren[] = [];
+        slots.forEach((slot) => {
+            if (!schedule.value) {
+                return;
+            }
+            schedule.value[day].children.forEach((child) => {
+                const isBetween = slot.date.getTime() >= child.hours[0].start.getTime() && slot.date.getTime() < child.hours[0].end.getTime();
+                if (isBetween) {
+                    slot.children.push(child);
+                }
+            });
+            ({ currentNbChild, currentStart } = ScheduleStore.processSlotTotalChildren(slot, currentNbChild, currentStart, totalChild));
+        });
+        schedule.value[day].totalChildren = totalChild;
     }
 
     return {
