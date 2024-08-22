@@ -65,6 +65,7 @@ const deleteHour = () => {
         class="w-full h-[24px] relative overflow-visible"
         :draggable="isDateBetween.active"
         :class="[
+            { 'bg-red-200 red-bg-striped': dayEmployee.breakTime?.getTime() === currentTime?.getTime() },
             {
                 'rounded-l-[8px]': isDateBetween.start,
             },
@@ -84,3 +85,9 @@ const deleteHour = () => {
         <div v-if="isDateBetween.start" class="capitalize w-max pl-2 absolute left-0 z-[1] text-white">{{ dayEmployee.name }} {{ timeEmployee.total }}</div>
     </div>
 </template>
+
+<style scoped>
+.red-bg-striped {
+    background-image: repeating-linear-gradient(-45deg, white, white 3px, transparent 2px, transparent 7px);
+}
+</style>

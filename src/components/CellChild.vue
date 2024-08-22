@@ -15,7 +15,7 @@ const nomberEmployeePresent = computed(() => {
     let nb = 0;
     props.dayEmployees?.forEach((e) => {
         e.hours.forEach((h) => {
-            if (props.currentTime >= h.start && props.currentTime < h.end) {
+            if (props.currentTime >= h.start && props.currentTime < h.end && props.currentTime.getTime() !== e.breakTime?.getTime()) {
                 nb++;
             }
         });
@@ -55,6 +55,7 @@ const isDateBetween = computed(() => ({
         ]"
     >
         <div v-if="isDateBetween.start" class="capitalize pl-1 text-[10px] absolute left-0 z-[1] text-white">👶 {{ timeChild.number }}</div>
-        <div v-if="nbEmployeeMoreOrLess !== 0" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">{{ nbEmployeeMoreOrLess < 0 ? '🚨' : nbEmployeeMoreOrLess }}</div>
+        <div v-if="nbEmployeeMoreOrLess !== 0" class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">{{ nbEmployeeMoreOrLess }}</div>
+        <!--        <div class="capitalize text-black pl-1 text-[10px] absolute left-0 z-[1]">{{ nomberEmployeePresent }}</div>-->
     </div>
 </template>

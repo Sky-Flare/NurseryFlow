@@ -6,6 +6,7 @@ import { Child, Days, useChildStore } from '@/store/childStore';
 export type Hour = {
     name: string;
     id: number;
+    breakTime?: Date;
     hours: { id: number; start: Date; end: Date; total: number }[];
 };
 export type TotalChildren = {
@@ -48,10 +49,31 @@ export const useScheduleStore = defineStore('schedule', () => {
         assignChildrenToSchedule(childrenToWork, schdl);
         assignEmployeesToSlots(schdl, employeeToWork);
         balanceEmployeeHours(schdl, employeeToWork);
+        processBreakTimeEmployee(schdl);
 
         schedule.value = schdl;
         generateScheduleLoading.value = false;
     };
+
+    function processBreakTimeEmployee(schdl: Record<Days, ScheduleItem>) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const [key, value] of Object.entries(schdl)) {
+            value.employee.forEach((employee) => {
+                employee.hours.forEach((hour) => {
+                    if (hour.total > 6) {
+                        employee.breakTime = new Date(hour.start.getTime() + 6 * 60 * 60 * 1000);
+                        if (hour.end.getTime() < new Date(new Date(hour.end).setHours(18, 30)).getTime()) {
+                            hour.end = new Date(hour.end.getTime() + 30 * 60 * 1000);
+                        } else if (hour.start.getTime() > new Date(new Date(hour.start).setHours(7, 30)).getTime()) {
+                            hour.start = new Date(hour.start.getTime() - 30 * 60 * 1000);
+                        } else {
+                            hour.total = hour.total - 0.5;
+                        }
+                    }
+                });
+            });
+        }
+    }
 
     function initializeSchedule(date: Date): Record<Days, ScheduleItem> {
         return (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as Days[]).reduce(
@@ -351,6 +373,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     return {
         schedule,
         processSlotTotalChildren,
+        processBreakTimeEmployee,
         addHoursOfDay,
         getTimeSlot,
         addEmployeeOfOneDay,

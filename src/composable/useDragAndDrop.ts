@@ -54,6 +54,7 @@ export const useDragAndDrop = () => {
     function totalHours(start: Date, end: Date) {
         return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
     }
+    // eslint-disable-next-line complexity
     function onDrop(evt: DragEvent, currentTime: Date, drop = false) {
         if (!currentDrag.value) {
             evt.preventDefault();
@@ -179,6 +180,13 @@ export const useDragAndDrop = () => {
         if (drop) {
             if (!employeeDisplay.value) {
                 updateTotalChildrenSchedule(day);
+            } else if (currentHour.total > 6) {
+                if (!currentEmployee.breakTime) {
+                    currentHour.total = currentHour.total - 0.5;
+                }
+                currentEmployee.breakTime = new Date(currentHour.start.getTime() + 6 * 60 * 60 * 1000);
+            } else {
+                currentEmployee.breakTime = undefined;
             }
             currentDrag.value = undefined;
         }
