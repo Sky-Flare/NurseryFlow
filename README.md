@@ -1,7 +1,4 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/588b5909-bf87-40a7-9943-bfcea481aaff/deploy-status)](https://app.netlify.com/sites/whimsical-sfogliatella-0db243/deploys)
-
-[https://whimsical-sfogliatella-0db243.netlify.app](https://nurseryschedule.netlify.app/)
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/c121820c-eb8a-4f94-9162-33085188d468/deploy-status)](https://app.netlify.com/sites/nurseryschedule/deploys)
 
 # Vue 3 + TypeScript + Vite
 
